@@ -1,1 +1,8 @@
 bin/mitamae-*
+
+# Ignore host-specific node files
+nodes/*
+!nodes/common.rb
+!nodes/darwin.rb
+!nodes/linux.rb
+!nodes/sample-hostname.rb

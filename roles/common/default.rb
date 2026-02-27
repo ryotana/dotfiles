@@ -17,6 +17,8 @@ include_cookbook "dotfiles"
   .gitconfig
   .gitignore
   .tigrc
+  .my.cnf
+  .vimrc
   .config/fish/config.fish
   .config/fish/functions
 ].each do |link|
