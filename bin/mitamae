@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -eu
+
+MITAMAE_VERSION='v1.14.4'
+MITAMAE_DOWNLOAD_URL='https://github.com/itamae-kitchen/mitamae/releases/download'
+
+BIN_PATH=$(dirname $0)
+
+if [ "$(uname)" == 'Linux' ]  && [ "$(uname -m)" == 'x86_64' ]; then
+  platform="x86_64-linux"
+elif [ "$(uname)" == 'Darwin' ]  && [ "$(uname -m)" == 'x86_64' ]; then
+  platform="x86_64-darwin"
+elif [ "$(uname)" == 'Darwin' ]  && [ "$(uname -m)" == 'arm64' ]; then
+  platform="aarch64-darwin"
+else
+  echo "unsupported platform: $(uname)"
+  exit 1
+fi
+
+MITAMAE_BIN="mitamae-${platform}"
+
+if ! [ -f "${BIN_PATH}/${MITAMAE_BIN}" ]; then
+  # Setup MItamae
+  curl -sS -fL "${MITAMAE_DOWNLOAD_URL}/${MITAMAE_VERSION}/${MITAMAE_BIN}.tar.gz" | tar zx -C "${BIN_PATH}/"
+  chmod +x "${BIN_PATH}/${MITAMAE_BIN}"
+fi
+
+exec "${BIN_PATH}/${MITAMAE_BIN}" $@
