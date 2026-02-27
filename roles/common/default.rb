@@ -14,6 +14,9 @@ end
 include_cookbook "dotfiles"
 
 %w[
+  .gitconfig
+  .gitignore
+  .tigrc
   .config/fish/config.fish
   .config/fish/functions
 ].each do |link|

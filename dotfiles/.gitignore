@@ -1,0 +1,28 @@
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-*
+.Trashes
+
+# Vim
+*.swp
+*.un~
+.netrwhist
+*~
+
+# Editor
+.vscode
+.idea
+
+# Chef
+berks-cookbooks/
+
+# Claude
+CLAUDE.local.md
+.mcp.local.json
+.claude/tmp
+.claude/output
+.claude/settings.local.json

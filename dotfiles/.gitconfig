@@ -1,0 +1,48 @@
+[user]
+  name = ryotana
+  email = dev@saku-lab.net
+
+[core]
+  editor = vim
+  excludesfile = ~/.gitignore
+  pager = diff-so-fancy | less --tabs=4 -RFX
+
+[fetch]
+  prune = true
+
+[push]
+  default = simple
+
+[merge]
+  ff = false
+
+[pull]
+  ff = only
+
+[color]
+  ui = true
+
+[interactive]
+  diffFilter = diff-so-fancy --patch
+
+[alias]
+  g = log --pretty=format:\"%C(red)%h%Creset %C(cyan)<%an>%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset\" --abbrev-commit --date=relative --graph --all
+  b = branch -vv
+  c = commit
+  cm = commit -m
+  ch = checkout
+  s = status
+  sh = show
+  d = diff
+  dc = diff --cached
+  l = log --decorate
+  sw = switch
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+[ghq]
+  root = ~/repos/ghq
