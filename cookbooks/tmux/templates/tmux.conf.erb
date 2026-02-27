@@ -1,0 +1,118 @@
+#----------------------------------------
+#- Base
+#----------------------------------------
+
+<% prefix = node[:is_darwin] ? "C-t" : "C-g" -%>
+<% if node[:is_darwin] -%>
+<% if node[:is_arm] -%>
+set -g default-shell /opt/homebrew/bin/fish
+<% else -%>
+set -g default-shell /usr/local/bin/fish
+<% end -%>
+
+set -g prefix ^T
+bind C-t select-pane -t :.+
+<% else -%>
+set -g default-shell /home/linuxbrew/.linuxbrew/bin/fish
+
+set -g prefix ^G
+bind C-g select-pane -t :.+
+<% end -%>
+unbind-key C-b
+
+set-option -g default-terminal screen-256color
+set -g terminal-overrides 'xterm:colors=256'
+
+set -g history-limit 20000
+set -sg escape-time 0
+set -g base-index 1
+setw -g pane-base-index 1
+
+set-window-option -g automatic-rename off
+set-option -g allow-rename off
+
+set -g visual-activity on
+setw -g monitor-activity on
+
+setw -g mode-keys vi
+unbind Escape
+bind Escape copy-mode
+
+<% if node[:is_darwin] -%>
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "reattach-to-user-namespace pbcopy"
+bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "reattach-to-user-namespace pbcopy"
+<% end -%>
+
+#----------------------------------------
+#- Plugins
+#----------------------------------------
+
+set -g @plugin 'tmux-plugins/tpm'
+
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @continuum-save-interval '30'
+set -g @continuum-restore 'on'
+
+run '~/.tmux/plugins/tpm/tpm'
+
+#----------------------------------------
+#- Key Bind
+#----------------------------------------
+
+bind C-l source-file ~/.tmux.conf \; display "tmux configuration was reloaded!"
+bind r refresh-client
+bind * list-clients
+bind a command-prompt "rename-window %%"
+bind A command-prompt "rename-session %%"
+bind x confirm-before "kill-window"
+bind X confirm-before "kill-session"
+bind W choose-session
+bind b break-pane
+
+bind E setw synchronize-panes on
+bind e setw synchronize-panes off
+
+bind | split-window -h -c "#{pane_current_path}"
+bind V split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+bind S split-window -v -c "#{pane_current_path}"
+
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+bind n select-window -t :+
+bind p select-window -t :-
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+bind N switch-client -n
+bind P switch-client -n
+
+#----------------------------------------
+#- Color
+#----------------------------------------
+
+set -g status-style bg=colour236,fg=colour136,default
+setw -g window-status-style fg=colour244,bg=default,dim
+set -g pane-border-style fg=colour1
+set -g pane-active-border-style fg=colour196,bg=colour0
+set -g message-style fg=colour166,bg=colour235,bright
+
+#----------------------------------------
+#- Status line
+#----------------------------------------
+
+set -g status-interval 15
+set -g status-position top
+set -g status-justify centre
+setw -g window-status-current-style fg=colour196,bg=black,bright,underscore
+
+set -g status-left-length 60
+set -g status-left "#[fg=white][S=#[fg=red]#S#[fg=white] W=#[fg=yellow]#I #[fg=white]P=#[fg=cyan]#P#[fg=white]] [on #[fg=red]#(hostname -s) #[fg=colour136](<%= prefix %>)#[fg=white]]"
+
+set -g status-right-length 60
+set -g status-right '#[fg=white][CTR=#[fg=red]#(~/bin/running_container)#[fg=white]] #[fg=white][LA=#[fg=red]#(~/bin/loadaverage)#[fg=white]] [RAM=#[fg=red]#(~/bin/available_memory)#[fg=white]MB] [Disk=#[fg=red]#(~/bin/available_disk)#[fg=white]GB]'

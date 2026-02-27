@@ -1,0 +1,11 @@
+#!/bin/bash
+
+DF=$(df -h / | tail -1 | awk '{print $4}')
+
+if [ $(uname) == 'Darwin' ]; then
+  DF=${DF/%??/}
+else
+  DF=${DF/%?/}
+fi
+
+printf "%03d" $DF
