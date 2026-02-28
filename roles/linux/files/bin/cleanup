@@ -1,0 +1,11 @@
+#!/bin/sh
+
+brew cleanup
+
+docker system prune --force
+docker rmi $(docker images -q) --force
+
+rm -rf ~/.cache/* ~/tmp/*
+rm -rf /var/tmp/terraform/*
+
+sudo journalctl --vacuum-time=30days
