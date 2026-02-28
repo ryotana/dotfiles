@@ -1,6 +1,6 @@
 node.reverse_merge!(
   plugins: [],
-  cookbooks: ["homebrew", "tmux"],
+  cookbooks: ["homebrew", "tmux", "docker"],
   brew: {
     tap: [],
     packages: [
