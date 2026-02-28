@@ -1,0 +1,104 @@
+#!/bin/bash
+
+set -eu
+
+usage() {
+  cat <<EOF >&2
+Usage: $(basename "$0") <command> [options]
+
+Commands:
+  encrypt, e    Encrypt plaintext using AWS KMS
+  decrypt, d    Decrypt ciphertext using AWS KMS
+
+Options:
+  -k, --key-id KEY_ID   KMS key ID (encrypt only, required)
+  -t, --text TEXT        Input text directly
+  -f, --file FILE        Input from file
+  -r, --region REGION    AWS region (default: ap-northeast-1)
+EOF
+  exit 1
+}
+
+parse_opts() {
+  text=null
+  file=null
+  region='ap-northeast-1'
+  key_id=null
+
+  set +u
+  while getopts ktfr-: opt; do
+    optarg="${!OPTIND}"
+    [[ "$opt" = - ]] && opt="-$OPTARG"
+
+    case "-$opt" in
+      -k|--key-id)
+        key_id="$optarg"
+        shift
+        ;;
+      -t|--text)
+        text="$optarg"
+        shift
+        ;;
+      -f|--file)
+        file="$optarg"
+        shift
+        ;;
+      -r|--region)
+        region="$optarg"
+        shift
+        ;;
+      --*)
+        echo "$0: Illegal option -- ${opt##-}" >&2
+        exit 1
+        ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+  set -u
+}
+
+do_encrypt() {
+  parse_opts "$@"
+
+  if [ $text != null ]; then
+    aws --region $region kms encrypt --key-id $key_id --query CiphertextBlob --cli-binary-format=raw-in-base64-out --output text --plaintext $text
+  else
+    aws --region $region kms encrypt --key-id $key_id --query CiphertextBlob --cli-binary-format=raw-in-base64-out --output text --plaintext fileb://$file
+  fi
+}
+
+do_decrypt() {
+  parse_opts "$@"
+
+  TMPDIR="$HOME/tmp/kms"
+  TMPFILE="$TMPDIR/tmp.base64"
+  mkdir -p $TMPDIR
+
+  if [ $text != null ]; then
+    echo $text | base64 -d > $TMPFILE
+  else
+    cat $file | base64 -d > $TMPFILE
+  fi
+
+  aws --region $region kms decrypt --ciphertext-blob fileb://$TMPFILE | jq .Plaintext --raw-output | base64 -d
+  rm -f $TMPFILE
+}
+
+if [ $# -lt 1 ]; then
+  usage
+fi
+
+command="$1"
+shift
+
+case "$command" in
+  encrypt|e)
+    do_encrypt "$@"
+    ;;
+  decrypt|d)
+    do_decrypt "$@"
+    ;;
+  *)
+    usage
+    ;;
+esac

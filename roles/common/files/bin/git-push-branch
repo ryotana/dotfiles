@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+# ./git-push-branch.sh [-f|--force]
+
+set -eo pipefail
+
+error() {
+    echo "ERROR: $*" >&2
+}
+
+warn() {
+    echo "WARNING: $*" >&2
+}
+
+is_protected_branch() {
+    local branch="$1"
+    [[ "${branch}" == "main" ]] || [[ "${branch}" == "master" ]]
+}
+
+has_force_option() {
+    local arg="$1"
+    [[ "${arg}" == "-f" ]] || [[ "${arg}" == "--force" ]]
+}
+
+get_current_branch() {
+    git rev-parse --abbrev-ref HEAD
+}
+
+is_git_repository() {
+    git rev-parse --git-dir > /dev/null 2>&1
+}
+
+confirm_force_push() {
+    local branch="$1"
+
+    warn "Force push will overwrite remote history"
+    warn "Target branch: ${branch}"
+    echo -n "Are you sure you want to force push? (y/N): " >&2
+
+    local answer
+    read -r answer
+
+    [[ "${answer}" == "y" ]] || [[ "${answer}" == "Y" ]]
+}
+
+main() {
+    local force_flag=""
+
+    if [[ "$#" -ge 1 ]]; then
+        if has_force_option "$1"; then
+            force_flag="--force"
+        else
+            error "Unknown option: $1"
+            echo "Usage: $0 [-f|--force]" >&2
+            return 1
+        fi
+    fi
+
+    if ! is_git_repository; then
+        error "Not a git repository"
+        return 1
+    fi
+
+    local current_branch
+    current_branch="$(get_current_branch)"
+
+    if is_protected_branch "${current_branch}"; then
+        error "Direct push to main/master branch is not allowed"
+        error "Current branch: ${current_branch}"
+        return 1
+    fi
+
+    if [[ -n "${force_flag}" ]]; then
+        if ! confirm_force_push "${current_branch}"; then
+            echo "Force push cancelled" >&2
+            return 0
+        fi
+    fi
+
+    echo "Pushing branch '${current_branch}'..."
+
+    if [[ -n "${force_flag}" ]]; then
+        echo "Executing force push"
+        git push ${force_flag} origin "${current_branch}"
+    else
+        git push --set-upstream origin "${current_branch}"
+    fi
+
+    echo "Push completed: ${current_branch}"
+}
+
+[[ "$0" == "${BASH_SOURCE[0]}" ]] && main "$@"

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+ghq list --full-path | parallel -j8 '
+    cd {} || exit 1
+
+    if ! git fetch 2>/dev/null; then
+        echo "[ERROR] {}: Fetch failed (no access or repo not found)"
+        exit 1
+    fi
+
+    if ! git rev-parse --abbrev-ref @{u} >/dev/null 2>&1; then
+        echo "[SKIP] {}: No upstream branch"
+        exit 0
+    fi
+
+    if git merge-tree --write-tree HEAD @{u} >/dev/null 2>&1; then
+        echo "[PULL] {}"
+        git pull --quiet
+    else
+        echo "[CONFLICT] {}: Skipping pull"
+    fi
+'
