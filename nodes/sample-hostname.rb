@@ -5,6 +5,7 @@ node.reverse_merge!(
     tap: [],
     packages: [
       "fish", "git", "tmux",
+      "percona-toolkit", "pgbadger",
     ],
     cask_packages: [],
   },

@@ -1,0 +1,129 @@
+#!/bin/bash
+
+set -eo pipefail
+
+# ----------------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------------
+readonly TIMESTAMP=$(date '+%Y%m%d%H%M')
+readonly DEFAULT_REGION="ap-northeast-1"
+readonly MYSQL_LOG_LIMIT=5
+readonly POSTGRESQL_LOG_LIMIT=30
+readonly DIGEST_LIMIT=10
+
+# ----------------------------------------------------------------------------
+# Global Variables (initialized in init())
+# ----------------------------------------------------------------------------
+AWS_REGION="${AWS_REGION:-$DEFAULT_REGION}"
+export AWS_REGION
+
+DB_IDENTIFIER=""
+WORKDIR=""
+ENGINE=""
+
+# ----------------------------------------------------------------------------
+# Helper Functions
+# ----------------------------------------------------------------------------
+
+# Detect database engine type
+detect_engine() {
+    aws rds describe-db-instances \
+        --db-instance-identifier "$DB_IDENTIFIER" \
+        | jq -r '.DBInstances[].Engine'
+}
+
+# Fetch log file list based on engine type
+fetch_log_files() {
+    if [[ "$ENGINE" == "aurora-postgresql" ]]; then
+        aws rds describe-db-log-files \
+            --db-instance-identifier "$DB_IDENTIFIER" \
+            | jq -r '.DescribeDBLogFiles[].LogFileName | select(. | test("^error"))' \
+            | sort -nr \
+            | head -"$POSTGRESQL_LOG_LIMIT"
+    else
+        local rotated_logs
+        rotated_logs=$(aws rds describe-db-log-files \
+            --db-instance-identifier "$DB_IDENTIFIER" \
+            | jq -r '.DescribeDBLogFiles[].LogFileName | select(. | test("^slowquery"))' \
+            | sort -nr \
+            | head -"$MYSQL_LOG_LIMIT")
+        echo "slowquery/mysql-slowquery.log"
+        echo "$rotated_logs"
+    fi
+}
+
+# Download a single log file
+download_log_file() {
+    local log_file=$1
+    local download_file
+    download_file=$(basename "$log_file")
+
+    echo "=== $download_file : $log_file ==="
+    aws rds download-db-log-file-portion \
+        --db-instance-identifier "$DB_IDENTIFIER" \
+        --log-file-name "$log_file" \
+        --output text > "$download_file"
+
+    cat "$download_file" >> summary.txt
+
+    if [[ "$ENGINE" != "aurora-postgresql" ]]; then
+        pt-query-digest --type=slowlog --limit "$DIGEST_LIMIT" "$download_file" > "$download_file.digest"
+    fi
+}
+
+# Generate final summary report
+generate_summary() {
+    local result_file
+
+    if [[ "$ENGINE" == "aurora-postgresql" ]]; then
+        result_file="summary.html"
+        pgbadger -p '%t:%r:%u@%d:[%p]:' --outfile "$result_file" ./summary.txt
+    else
+        result_file="summary.digest"
+        pt-query-digest --type=slowlog --limit "$DIGEST_LIMIT" summary.txt > "$result_file"
+    fi
+
+    echo
+    echo "See: $WORKDIR/$result_file"
+}
+
+# ----------------------------------------------------------------------------
+# Main Functions
+# ----------------------------------------------------------------------------
+
+# Initialize script environment
+init() {
+    if [[ $# -lt 1 ]]; then
+        echo "Usage: $(basename "$0") <db-instance-identifier>" >&2
+        exit 1
+    fi
+
+    DB_IDENTIFIER=$1
+    WORKDIR=~/tmp/slowlog/$DB_IDENTIFIER/$TIMESTAMP
+
+    mkdir -p "$WORKDIR"
+    cd "$WORKDIR"
+
+    ENGINE=$(detect_engine)
+}
+
+# Main execution
+main() {
+    local log_files
+    log_files=$(fetch_log_files)
+
+    for log_file in $log_files; do
+        download_log_file "$log_file"
+    done
+
+    generate_summary
+}
+
+# ----------------------------------------------------------------------------
+# Entrypoint
+# ----------------------------------------------------------------------------
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    init "$@"
+    main
+fi
