@@ -6,3 +6,5 @@ nodes/*
 !nodes/darwin.rb
 !nodes/linux.rb
 !nodes/sample-hostname.rb
+
+plugins/*

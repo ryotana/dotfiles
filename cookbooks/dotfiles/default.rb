@@ -1,6 +1,7 @@
-define :dotfile_link do
+define :dotfile_link, source: nil do
+  dotfiles_dir = params[:source] || File.expand_path("../../../dotfiles", __FILE__)
   link File.join(node[:userhome], params[:name]) do
-    to File.expand_path("../../../dotfiles/#{params[:name]}", __FILE__)
+    to File.join(dotfiles_dir, params[:name])
     user node[:username]
     force true
     action :create
