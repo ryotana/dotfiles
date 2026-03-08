@@ -13,3 +13,14 @@ Dir.glob(File.expand_path("../files/bin/*", __FILE__)) do |bin|
     action :create
   end
 end
+
+# cloud-init
+%w[
+  001_create_tmpdir.sh
+  101_create_swap.sh
+].each do |boot|
+  remote_file "/var/lib/cloud/scripts/per-boot/#{boot}" do
+    source File.expand_path("../files/var/lib/cloud/scripts/per-boot/#{boot}", __FILE__)
+    mode "755"
+  end
+end
