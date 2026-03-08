@@ -1,0 +1,440 @@
+#!/bin/bash
+
+set -eo pipefail
+
+# ----------------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------------
+readonly SPINNER_DELAY=0.1
+readonly SPINNER_CHARS='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+readonly DEFAULT_SPINNER_MESSAGE="doing ..."
+readonly TIMESTAMP=$(date "+%Y%m%d-%H%M")
+readonly TMP_BASE_DIR="/var/tmp/terraform"
+
+# ----------------------------------------------------------------------------
+# Global Variables (initialized in init())
+# ----------------------------------------------------------------------------
+LOGDIR=""
+CACHEDIR=""
+TMPDIR=""
+subcommand="null"
+file="null"
+ignore_file="null"
+target="null"
+ignore_target="null"
+
+# ----------------------------------------------------------------------------
+# UI Functions
+# ----------------------------------------------------------------------------
+
+# Display spinner animation while a process is running
+# Arguments:
+#   $1 - Process ID to monitor
+#   $2 - Message to display
+spinner() {
+    local pid=$1
+    local message=$2
+    local i=0
+
+    tput civis  # Hide cursor
+    printf "\r%s " "${message}"
+
+    while kill -0 $pid 2>/dev/null; do
+        local temp=${SPINNER_CHARS:i++%${#SPINNER_CHARS}:1}
+        printf "%s" "$temp"
+        sleep $SPINNER_DELAY
+        printf "\b"
+    done
+
+    tput cnorm  # Show cursor
+    printf "\r%s [done]\n" "${message}"
+}
+
+# Execute command with spinner animation
+# Arguments:
+#   $1 - Command to execute
+#   $2 - Message to display (optional)
+run_with_spinner() {
+    local cmd=$1
+    local message="${2:-$DEFAULT_SPINNER_MESSAGE}"
+    local tmpfile=$(mktemp)
+
+    eval "$cmd" > $tmpfile 2>&1 &
+    local pid=$!
+
+    spinner $pid "$message"
+
+    cat $tmpfile
+    rm -f $tmpfile
+}
+
+# Prompt user for confirmation
+# Arguments:
+#   $1 - Prompt message (optional)
+# Returns:
+#   0 if user confirms (y), 1 if user declines (n)
+confirm() {
+    while true; do
+        if [ "$1" != "" ]; then
+            printf '%s ' "$1"
+        fi
+        printf "[y/n] > "
+        read input
+
+        case "$input" in
+            y) return 0 ;;
+            n) return 1 ;;
+        esac
+    done
+}
+
+# ----------------------------------------------------------------------------
+# Directory Management Functions
+# ----------------------------------------------------------------------------
+
+# Create necessary directories for logs and cache
+# Uses current working directory to create subdirectory structure
+setup_directories() {
+    local repo_path=$(pwd | awk -F 'repos/' '{print $2}')
+
+    # Setup log directory
+    LOGDIR=~/logs/tanaform
+    if [ -n "$repo_path" ]; then
+        LOGDIR=$LOGDIR/$repo_path
+    fi
+    mkdir -p "$LOGDIR"
+
+    # Setup cache directory
+    CACHEDIR=~/.cache/tanaform
+    if [ -n "$repo_path" ]; then
+        CACHEDIR=$CACHEDIR/$repo_path
+    fi
+    mkdir -p "$CACHEDIR"
+
+    # Setup temp directory
+    mkdir -p "$TMP_BASE_DIR"
+    TMPDIR=$(mktemp -d -p "$TMP_BASE_DIR")
+}
+
+# ----------------------------------------------------------------------------
+# Argument Parsing Functions
+# ----------------------------------------------------------------------------
+
+# Parse command line arguments
+# Arguments:
+#   $@ - All command line arguments
+parse_arguments() {
+    # Extract subcommand if present
+    if [[ $# -gt 0 ]]; then
+        if [[ "${1:0:1}" != "-" ]]; then
+            subcommand="$1"
+            shift
+        fi
+    fi
+
+    # Parse options
+    set +u  # Allow unset variables temporarily
+    local OPTIND=1
+    while getopts ftin-: opt; do
+        local optarg="${!OPTIND}"
+        [[ "$opt" = - ]] && opt="-$OPTARG"
+
+        case "-$opt" in
+            -f|--file)
+                file="$optarg"
+                OPTIND=$((OPTIND + 1))
+                ;;
+            -n|--ignore-file)
+                ignore_file="$optarg"
+                OPTIND=$((OPTIND + 1))
+                ;;
+            -t|--target)
+                target="$optarg"
+                OPTIND=$((OPTIND + 1))
+                ;;
+            -i|--ignore-target)
+                ignore_target="$optarg"
+                OPTIND=$((OPTIND + 1))
+                ;;
+            --*)
+                echo "$0: Illegal option -- ${opt##-}" >&2
+                exit 1
+                ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+    set -u  # Re-enable unset variable check
+}
+
+# ----------------------------------------------------------------------------
+# Terraform Helper Functions
+# ----------------------------------------------------------------------------
+
+# Format terraform files recursively
+format_terraform() {
+    terraform fmt -recursive 2>&1 >/dev/null
+}
+
+# Validate terraform configuration
+validate_terraform() {
+    terraform validate
+}
+
+# Get latest plan targets from cache
+get_latest_plan_targets() {
+    local latest_plan=$(find "$CACHEDIR"/*.full.out -type f 2>/dev/null | sort -nr | head -n 1)
+
+    if [ -z "$latest_plan" ]; then
+        echo ""
+        return
+    fi
+
+    terraform show -json "$latest_plan" | \
+        jq -r '.resource_changes[] |
+               select(any(.change.actions[]; . == "create" or . == "update" or . == "delete")) |
+               .address' | \
+        tr '\n' ',' | \
+        sed 's/,$//'
+}
+
+# Extract terraform resources from files
+# Arguments:
+#   $1 - Comma-separated list of files
+extract_resources_from_files() {
+    local files=$1
+    cat $(echo "$files" | tr ',' ' ') | \
+        hcledit block list | \
+        grep -v -e 'locals' -e 'import' | \
+        sed 's/^resource\.//' | \
+        tr '\n' ',' | \
+        sed 's/,$//'
+}
+
+# Calculate ignore targets
+# Arguments:
+#   $1 - Comma-separated list of targets to ignore
+calculate_ignore_targets() {
+    local ignore_list=$1
+    local latest_targets=$(get_latest_plan_targets)
+
+    if [ -z "$latest_targets" ]; then
+        echo ""
+        return
+    fi
+
+    # Return targets that are in latest_targets but not in ignore_list
+    awk '
+        FNR==NR { exclude[$0]=1; next }
+        !($0 in exclude) { print $0 }
+    ' <(echo "$ignore_list" | tr ',' '\n') \
+      <(echo "$latest_targets" | tr ',' '\n') | \
+    paste -sd ',' -
+}
+
+# ----------------------------------------------------------------------------
+# Command Functions
+# ----------------------------------------------------------------------------
+
+# Show terraform plan output from cache
+cmd_show_out() {
+    local latest_out=$(find "$CACHEDIR"/*.out -type f 2>/dev/null | sort -nr | head -n 1)
+
+    if [ -z "$latest_out" ]; then
+        echo "No cached plan output found"
+        return 1
+    fi
+
+    terraform show -json "$latest_out" | jq .
+}
+
+# Show latest log file (filtered - excludes state refresh output)
+cmd_show_log() {
+    local latest_log=$(find "$LOGDIR"/*.log -type f 2>/dev/null | sort -nr | head -n 1)
+
+    if [ -z "$latest_log" ]; then
+        echo "No log file found"
+        return 1
+    fi
+
+    grep -v -e ': Refreshing state...' -e ': Reading...' -e ': Read complete after' "$latest_log"
+}
+
+# Show latest log file (full output)
+cmd_show_log_full() {
+    local latest_log=$(find "$LOGDIR"/*.log -type f 2>/dev/null | sort -nr | head -n 1)
+
+    if [ -z "$latest_log" ]; then
+        echo "No log file found"
+        return 1
+    fi
+
+    cat "$latest_log"
+}
+
+# Clean terraform directory
+cmd_clean() {
+    set +e  # Allow commands to fail
+    if [ -d ".terraform" ]; then
+        mv -f .terraform "$TMPDIR/" 2>/dev/null
+        echo "Cleaned .terraform directory"
+    else
+        echo "No .terraform directory to clean"
+    fi
+    set -e
+}
+
+# Initialize terraform
+cmd_init() {
+    cmd_clean
+    /usr/bin/time -f '\ntf init, elapsed %E' terraform init
+}
+
+# Lock provider versions
+cmd_lock() {
+    rm -f .terraform.lock.hcl
+    cmd_init
+    terraform providers lock \
+        -platform=darwin_amd64 \
+        -platform=darwin_arm64 \
+        -platform=linux_amd64
+}
+
+# Plan terraform changes
+cmd_plan() {
+    # Format and validate first
+    format_terraform
+    validate_terraform
+
+    # Setup logging
+    local log_file="$LOGDIR/plan-$TIMESTAMP.log"
+    local filter_cmd="grep --line-buffered -v -e ': Refreshing state...' -e ': Reading...' -e ': Read complete after'"
+    local cmd_suffix="| tee $log_file | $filter_cmd"
+
+    # Execute plan command
+    set +u  # Allow unset variables
+    if [[ "$target" != "null" ]]; then
+        # Plan with specific targets
+        local escaped_target=$(echo "$target" | sed 's/"/\\"/g')
+        local out_file="$CACHEDIR/plan-$TIMESTAMP.patch.out"
+        local plan_cmd="/usr/bin/time -f '\ntf plan, elapsed %E' terraform plan -target={$escaped_target,dummy.dummy} -out=$out_file $cmd_suffix"
+        run_with_spinner "$plan_cmd" "tf plan -target={$escaped_target} ..."
+    else
+        # Full plan
+        local out_file="$CACHEDIR/plan-$TIMESTAMP.full.out"
+        local plan_cmd="/usr/bin/time -f '\ntf plan, elapsed %E' terraform plan -out=$out_file $cmd_suffix"
+        run_with_spinner "$plan_cmd" "tf plan ..."
+    fi
+    set -u
+}
+
+# Apply terraform changes
+cmd_apply() {
+    local latest_out=$(find "$CACHEDIR"/plan-*.out -type f 2>/dev/null | sort -nr | head -n 1)
+
+    if [ -z "$latest_out" ]; then
+        echo "No plan output found. Please run 'tanaform plan' first."
+        return 1
+    fi
+
+    echo "tf apply with ${latest_out}"
+
+    if confirm 'Are you sure want to do?'; then
+        /usr/bin/time -f '\ntf apply, elapsed %E' terraform apply "$latest_out"
+    else
+        echo "Apply cancelled"
+        exit 0
+    fi
+}
+
+# Process target options
+process_targets() {
+    set +u  # Allow unset variables
+
+    # Process ignore targets
+    if [[ "$ignore_target" != "null" ]]; then
+        target=$(calculate_ignore_targets "$ignore_target")
+    fi
+
+    # Process ignore files
+    if [[ "$ignore_file" != "null" ]]; then
+        local resources_to_ignore=$(extract_resources_from_files "$ignore_file")
+        echo "ignore={$resources_to_ignore}"
+        target=$(calculate_ignore_targets "$resources_to_ignore")
+        echo "target={$target}"
+    fi
+
+    # Process target files
+    if [[ "$file" != "null" ]]; then
+        target=$(extract_resources_from_files "$file")
+    fi
+
+    set -u
+}
+
+# ----------------------------------------------------------------------------
+# Main Functions
+# ----------------------------------------------------------------------------
+
+# Initialize script environment
+init() {
+    setup_directories
+    parse_arguments "$@"
+}
+
+# Main command dispatcher
+main() {
+    case "${subcommand}" in
+        clean|c)
+            cmd_clean
+            ;;
+        init|i)
+            cmd_init
+            ;;
+        lock|l)
+            cmd_lock
+            ;;
+        plan|p)
+            process_targets
+            cmd_plan
+            ;;
+        apply|a)
+            cmd_apply
+            ;;
+        show|s)
+            cmd_show_log
+            ;;
+        show-full|sf)
+            cmd_show_log_full
+            ;;
+        show-out|o)
+            cmd_show_out
+            ;;
+        test)
+            # Test function for debugging
+            if [[ "$ignore_file" != "null" ]]; then
+                local resources=$(extract_resources_from_files "$ignore_file")
+                echo "Resources: $resources"
+                local targets=$(calculate_ignore_targets "$resources")
+                echo "Targets: $targets"
+            fi
+            ;;
+        *)
+            echo "Error: invalid subcommand: ${subcommand}" >&2
+            echo "Available commands: clean|c, init|i, lock|l, plan|p, apply|a, show|s, show-full|sf, show-out|o" >&2
+            exit 1
+            ;;
+    esac
+}
+
+# ----------------------------------------------------------------------------
+# Script Entry Point
+# ----------------------------------------------------------------------------
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    # Verify AWS credentials
+    aws sts get-caller-identity >/dev/null
+
+    # Initialize and run
+    init "$@"
+    main
+fi

@@ -1,6 +1,7 @@
 %w[
   .bashrc
   .config/fish/conf.d/anyenv.fish
+  .config/fish/conf.d/terraform.fish
 ].each do |link|
   dotfile_link link
 end
