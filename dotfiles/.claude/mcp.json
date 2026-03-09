@@ -9,7 +9,7 @@
         "AWS_REGION": "ap-northeast-1",
         "FASTMCP_LOG_LEVEL": "ERROR"
       },
-      "disabled": true
+      "disabled": false
     },
     "awslabs.billing-cost-management-mcp-server": {
       "command": "uvx",
@@ -20,7 +20,7 @@
         "AWS_REGION": "ap-northeast-1",
         "FASTMCP_LOG_LEVEL": "ERROR"
       },
-      "disabled": true
+      "disabled": false
     },
     "awslabs.terraform-mcp-server": {
       "command": "uvx",
