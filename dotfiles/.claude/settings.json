@@ -1,0 +1,128 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Search",
+      "Write",
+      "Edit",
+      "MultiEdit",
+      "WebFetch",
+      "WebSearch",
+      "Bash(bash:*)",
+      "Bash(env:*)",
+      "Bash(unset:*)",
+      "Bash(test:*)",
+      "Bash(pwd:*)",
+      "Bash(cd:*)",
+      "Bash(ls:*)",
+      "Bash(which:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(ln:*)",
+      "Bash(readlink:*)",
+      "Bash(chmod:*)",
+      "Bash(cat:*)",
+      "Bash(echo:*)",
+      "Bash(printf:*)",
+      "Bash(wc:*)",
+      "Bash(sort:*)",
+      "Bash(count:*)",
+      "Bash(grep:*)",
+      "Bash(ag:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
+      "Bash(jq:*)",
+      "Bash(yq:*)",
+      "Bash(ps:*)",
+      "Bash(jobs:*)",
+      "Bash(date:*)",
+      "Bash(TZ=Asia/Tokyo date:*)",
+      "Bash(curl:*)",
+      "Bash(grpcurl:*)",
+      "Bash(ss:*)",
+      "Bash(netstat:*)",
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(docker:*)",
+      "Bash(kubectl:*)",
+      "Bash(aws:*)",
+      "Bash(aws-vault:*)",
+      "Bash(gcloud:*)",
+      "Bash(terraform:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(ruby:*)",
+      "Bash(ruby-lsp:*)",
+      "Bash(rbenv exec:*)",
+      "Bash(bundle exec:*)",
+      "Bash(uvx:*)",
+      "Bash(npx:*)",
+      "Bash(direnv exec:*)",
+      "Bash(shellcheck:*)",
+      "Bash(yamllint:*)",
+      "Bash(actionlint:*)",
+      "mcp__aws-knowledge",
+      "mcp__awslabs_terraform-mcp-server",
+      "mcp__awslabs_aws-pricing-mcp-server",
+      "mcp__awslabs_billing-cost-management-mcp-server",
+      "mcp__context7",
+      "mcp__serena"
+    ],
+    "deny": [
+      "Bash(terraform destroy)",
+      "Bash(gh pr comment:*)",
+      "Bash(dnf:*)",
+      "Bash(yum:*)",
+      "Bash(brew:*)",
+      "Bash(sudo:*)",
+      "Bash(rm -rf /)",
+      "Bash(reboot:*)",
+      "Bash(shutdown:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(terraform apply)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r 'if (.tool_input.command | test(\"terraform apply|terraform destroy\")) then {\"decision\": \"block\", \"reason\": \"CAN NOT BE EXECUTED\"} else empty end'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path | select(endswith(\".tf\") or endswith(\".tfvars\"))' | xargs -r terraform fmt"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y ccusage@latest statusline",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "code-review@claude-plugins-official": true
+  },
+  "language": "japanese",
+  "alwaysThinkingEnabled": true,
+  "autoUpdate": true
+}

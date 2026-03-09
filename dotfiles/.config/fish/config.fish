@@ -60,7 +60,3 @@ function fish_user_key_bindings
   bind \cu fzf_get_hosts
   bind -e \cg # tmux prefix
 end
-
-# claude
-alias c='claude --mcp-config ~/.claude/mcp.json'
-alias cl='claude --model Haiku --mcp-config ~/.claude/no-mcp.json --tools Read,Glob,Grep,Search,WebFetch,WebSearch'

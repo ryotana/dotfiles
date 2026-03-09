@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -uo pipefail
+
+WORK_DIR="${1:-$(pwd)}"
+
+echo "Fetching: $WORK_DIR"
+cd "$WORK_DIR" || exit 1
+git fetch
+
+echo "Checking for conflicts"
+if git merge-tree --write-tree HEAD @{u} >/dev/null 2>&1; then
+    echo "Pulling repo"
+    git pull
+else
+    echo "Conflict detected: $WORK_DIR"
+fi
+
+echo "Indexing with Serena"
+uvx --from git+https://github.com/oraios/serena serena project index --log-level CRITICAL > .serena/index.log 2>&1
+
+echo "Updating Serena memory"
+timeout --kill-after=30s 1730s claude -p "リポジトリを網羅的に分析し、Serenaメモリを更新してください。" --allowedTools "mcp__serena" --print >> .serena/claude.log 2>&1

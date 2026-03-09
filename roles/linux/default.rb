@@ -2,6 +2,10 @@
   .bashrc
   .config/fish/conf.d/anyenv.fish
   .config/fish/conf.d/terraform.fish
+  .config/fish/conf.d/claude.fish
+  .claude/settings.json
+  .claude/mcp.json
+  .claude/no-mcp.json
 ].each do |link|
   dotfile_link link
 end
