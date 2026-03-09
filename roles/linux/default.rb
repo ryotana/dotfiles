@@ -1,5 +1,6 @@
 %w[
   .bashrc
+  .config/ecsta
   .config/fish/conf.d/anyenv.fish
   .config/fish/conf.d/terraform.fish
   .config/fish/conf.d/claude.fish
