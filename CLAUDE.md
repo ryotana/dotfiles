@@ -31,25 +31,29 @@ sudo ./run.sh -x
 
 ### ディレクトリの役割
 
-- **lib/bootstrap.rb** — ヘルパーメソッド群（`include_node`, `include_role`, `include_cookbook`, `include_plugin`, `plugin_fragments`, `plugin_template_fragment`）と実行シーケンス。
-- **nodes/** — 属性定義のみ。`node.reverse_merge!` で値を設定。リソース作成は禁止。
-- **roles/** — リソースを作成するレシピ群。`default.rb` と任意の `files/` を持つ。
-- **cookbooks/** — 再利用可能な DSL 定義。`dotfiles/default.rb` が `dotfile_link` と `dotfile_template` ヘルパーを提供。
-- **dotfiles/** — `$HOME` にシンボリックリンクされる実際の設定ファイル群。
-- **plugins/** — 環境固有の設定。`node.rb`、`recipes/default.rb`、`dotfiles/`、`templates/` を持つ。プライベートリポジトリをクローンする事を想定。
+- **lib/bootstrap.rb** — ヘルパーメソッド群と実行シーケンス
+- **nodes/** — 属性定義のみ。`node.reverse_merge!` で値を設定。**リソース作成は禁止**
+- **roles/** — リソースを作成するレシピ群。`default.rb` と任意の `files/` を持つ
+- **cookbooks/** — 再利用可能な設定単位。`dotfiles` cookbook が `dotfile_link` / `dotfile_template` ヘルパーを提供。その他（homebrew, tmux, docker, anyenv）はノードの `node[:cookbooks]` で有効化
+- **dotfiles/** — `$HOME` にシンボリックリンクされる実際の設定ファイル群
+- **plugins/** — 環境固有の設定（後述）
 
 ### dotfile の追加手順
 
 1. `dotfiles/` にファイルを配置（例: `dotfiles/.myconfig`）
 2. ロールのレシピ（通常 `roles/common/default.rb`）に `dotfile_link ".myconfig"` を追加
 
-テンプレート化する場合は `dotfiles/` に `.erb` 拡張子で配置し、`dotfile_template` を使用する。
+テンプレート化する場合は `dotfiles/` に `.erb` 拡張子で配置し、`dotfile_template ".myconfig"` を使用する。
+
+### ホスト名ノードファイル
+
+ホストごとの設定は `nodes/<hostname>.rb` に記述する。`nodes/sample-hostname.rb` がサンプル。ホスト名ノードファイルは `nodes/common.rb`, `nodes/darwin.rb`, `nodes/linux.rb` 以外 `.gitignore` で除外されるため、環境固有の情報を安全に記述できる。
 
 ### プラグインシステム — 環境分離
 
 プラグインで環境ごとの設定を分離する。
-**最重要制約: 本リポジトリはパブリック公開されるため、顧客情報を含むプラグインは別のプライベートリポジトリで管理すること。**
-ホスト名固有のノードファイルの `node[:plugins]` 配列でどのプラグインを有効にするか制御する。
+**最重要制約: 本リポジトリはパブリック公開されるため、顧客情報・企業名を含むプラグインは別のプライベートリポジトリで管理すること。**
+ホスト名固有のノードファイルの `node[:plugins]` 配列でどのプラグインを有効にするか制御する。`plugins/` ディレクトリ自体も `.gitignore` で除外される。
 
 ```
 plugins/<name>/
@@ -58,6 +62,10 @@ plugins/<name>/
 ├── dotfiles/            # plugin_fragments() で集約されるフラグメント
 └── templates/           # plugin_template_fragment() で集約されるフラグメント
 ```
+
+**フラグメント集約**: `dotfile_template` 内の ERB テンプレートから `plugin_fragments("some/path")` を呼ぶと、有効な全プラグインの `dotfiles/some/path/*` を結合して返す。`plugin_template_fragment("file.conf")` は `templates/file.conf` を結合する。これにより、プラグインごとに設定を分割しつつ一つのファイルに集約できる。
+
+**dotfile_link の source パラメータ**: プラグインの recipes 内で `dotfile_link ".myconfig", source: "/path/to/plugin/dotfiles"` と指定すると、プラグイン固有の dotfiles ディレクトリからシンボリックリンクを作成できる。
 
 ### 主要なノード属性
 
