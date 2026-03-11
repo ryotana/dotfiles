@@ -14,6 +14,7 @@ alias less='less -R'
 alias diff='colordiff -u'
 alias g='git'
 alias gs='git status'
+alias rg='rg --hidden'
 
 # path
 fish_add_path $HOME/bin
