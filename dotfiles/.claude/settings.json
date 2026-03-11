@@ -20,6 +20,7 @@
       "Bash(tree:*)",
       "Bash(find:*)",
       "Bash(mkdir:*)",
+      "Bash(xargs:*)",
       "Bash(mv:*)",
       "Bash(ln:*)",
       "Bash(readlink:*)",
