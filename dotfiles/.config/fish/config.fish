@@ -17,6 +17,7 @@ alias gs='git status'
 
 # path
 fish_add_path $HOME/bin
+fish_add_path $HOME/.local/bin
 
 # prompt
 set fish_prompt_pwd_dir_length 4

@@ -4,6 +4,7 @@
   #{node[:userhome]}/.config
   #{node[:userhome]}/.config/fish
   #{node[:userhome]}/.config/fish/conf.d
+  #{node[:userhome]}/.claude
 ].each do |dir|
   directory dir do
     owner node[:username]
@@ -21,6 +22,10 @@ include_cookbook "dotfiles"
   .vimrc
   .config/fish/config.fish
   .config/fish/functions
+  .config/fish/conf.d/claude.fish
+  .claude/settings.json
+  .claude/mcp.json
+  .claude/no-mcp.json
 ].each do |link|
   dotfile_link link
 end
