@@ -5,6 +5,7 @@
   #{node[:userhome]}/.config/fish
   #{node[:userhome]}/.config/fish/conf.d
   #{node[:userhome]}/.claude
+  #{node[:userhome]}/.aws
 ].each do |dir|
   directory dir do
     owner node[:username]
@@ -28,6 +29,11 @@ include_cookbook "dotfiles"
   .claude/no-mcp.json
 ].each do |link|
   dotfile_link link
+end
+
+_aws_fragments = plugin_fragments(".aws/config.d")
+dotfile_template ".aws/config" do
+  vars({ plugin_fragments: _aws_fragments })
 end
 
 Dir.glob(File.expand_path("../files/bin/*", __FILE__)) do |bin|

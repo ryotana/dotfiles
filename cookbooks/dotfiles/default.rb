@@ -8,9 +8,10 @@ define :dotfile_link, source: nil do
   end
 end
 
-define :dotfile_template do
+define :dotfile_template, vars: {} do
   template File.join(node[:userhome] + "/" + params[:name]) do
     source File.expand_path("../../../dotfiles/#{params[:name]}.erb", __FILE__)
     user node[:username]
+    variables params[:vars] unless params[:vars].empty?
   end
 end
