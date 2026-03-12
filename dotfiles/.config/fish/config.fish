@@ -11,7 +11,6 @@ set -x HOMEBREW_NO_INSTALL_CLEANUP 1
 # alias
 alias rsync='ionice -c 2 -n 7 nice -n 19 rsync --bwlimit=10250' # 100Mbps
 alias less='less -R'
-alias diff='colordiff -u'
 alias g='git'
 alias gs='git status'
 alias rg='rg --hidden'
