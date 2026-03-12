@@ -78,6 +78,7 @@
       "Bash(anyenv:*)",
       "Bash(yamllint:*)",
       "Bash(actionlint:*)",
+      "Bash(sudo ./run.sh)",
       "mcp__aws-knowledge",
       "mcp__awslabs_terraform-mcp-server",
       "mcp__awslabs_aws-pricing-mcp-server",
@@ -91,7 +92,6 @@
       "Bash(dnf:*)",
       "Bash(yum:*)",
       "Bash(brew:*)",
-      "Bash(sudo:*)",
       "Bash(rm -rf /)",
       "Bash(reboot:*)",
       "Bash(shutdown:*)"
@@ -99,7 +99,8 @@
     "ask": [
       "Bash(git push:*)",
       "Bash(git reset:*)",
-      "Bash(terraform apply)"
+      "Bash(terraform apply)",
+      "Bash(sudo:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
