@@ -1,3 +1,8 @@
+_aws_fragments = plugin_fragments(".aws/config.linux.d")
+dotfile_template ".aws/config" do
+  vars({ plugin_fragments: _aws_fragments })
+end
+
 %w[
   .bashrc
   .config/ecsta
