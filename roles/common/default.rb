@@ -24,9 +24,11 @@ include_cookbook "dotfiles"
   .config/fish/config.fish
   .config/fish/functions
   .config/fish/conf.d/claude.fish
+  .claude/CLAUDE.md
   .claude/settings.json
   .claude/mcp.json
   .claude/no-mcp.json
+  .claude/rules
 ].each do |link|
   dotfile_link link
 end

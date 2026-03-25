@@ -100,6 +100,9 @@
       "Bash(git push:*)",
       "Bash(git reset:*)",
       "Bash(terraform apply)",
+      "Bash(kubectl delete:*)",
+      "Bash(kubectl drain:*)",
+      "Bash(kubectl cordon:*)",
       "Bash(sudo:*)"
     ]
   },
@@ -111,7 +114,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r 'if (.tool_input.command | test(\"terraform apply|terraform destroy\")) then {\"decision\": \"block\", \"reason\": \"CAN NOT BE EXECUTED\"} else empty end'"
+            "command": "jq -r 'if (.tool_input.command | test(\"terraform destroy\")) then {\"decision\": \"block\", \"reason\": \"CAN NOT BE EXECUTED\"} else empty end'"
           }
         ]
       }
@@ -140,6 +143,9 @@
   "alwaysThinkingEnabled": true,
   "autoUpdate": true,
   "env": {
-    "ENABLE_TOOL_SEARCH": "true"
+    "ENABLE_TOOL_SEARCH": 1,
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": 1,
+    "MAX_MCP_OUTPUT_TOKENS": 200000,
+    "BASH_MAX_TIMEOUT_MS": 600000
   }
 }
