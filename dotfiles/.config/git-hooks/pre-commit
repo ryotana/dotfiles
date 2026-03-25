@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if command -v gitleaks >/dev/null 2>&1; then
+  if [ -f ".gitleaks.toml" ]; then
+    gitleaks protect --staged --redact --no-banner -c .gitleaks.toml
+  else
+    gitleaks protect --staged --redact --no-banner
+  fi
+else
+  echo "WARNING: gitleaks not found" >&2
+fi
+
+local_hook="$(git rev-parse --show-toplevel)/.git/hooks/pre-commit"
+if [ -x "$local_hook" ]; then
+  exec "$local_hook"
+fi

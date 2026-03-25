@@ -21,6 +21,7 @@ include_cookbook "dotfiles"
   .tigrc
   .my.cnf
   .vimrc
+  .config/git-hooks
   .config/fish/config.fish
   .config/fish/functions
   .config/fish/conf.d/claude.fish

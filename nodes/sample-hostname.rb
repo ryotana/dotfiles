@@ -4,7 +4,7 @@ node.reverse_merge!(
   brew: {
     tap: [],
     packages: [
-      "fish", "git", "tmux", "eza", "diff-so-fancy", "colordiff", "parallel",
+      "fish", "git", "gitleaks", "tmux", "eza", "diff-so-fancy", "colordiff", "parallel",
       "direnv", "ripgrep", "fd", "fzf", "ast-grep", "scc", "sd",
       "jq", "jo", "yq",
       "shellcheck", "yamllint", "actionlint",
