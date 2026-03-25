@@ -1,0 +1,29 @@
+[general]
+live_config_reload = false
+
+import = [
+  "~/.config/alacritty/themes/themes/afterglow.toml"
+]
+
+[window]
+#dimensions = { columns = 200, lines = 60 }
+padding = { x = 10, y = 4 }
+opacity = 0.85
+
+[terminal]
+shell = "/opt/homebrew/bin/fish"
+
+[cursor]
+style = "Block"
+
+[scrolling]
+history = 100000
+multiplier = 3
+
+[font]
+normal = { family = "HackGen Console NF", style = "Regular" }
+bold = { family = "HackGen Console NF", style = "Bold" }
+italic = { family = "HackGen Console NF", style = "Italic" }
+bold_italic = { family = "HackGen Console NF", style = "Bold Italic" }
+size = 13.0
+offset = { x = 0, y = 2 }
