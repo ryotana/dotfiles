@@ -20,8 +20,8 @@ bind C-g select-pane -t :.+
 <% end -%>
 unbind-key C-b
 
-set-option -g default-terminal screen-256color
-set -g terminal-overrides 'xterm:colors=256'
+set -g default-terminal "tmux-256color"
+set -ag terminal-overrides ",xterm-256color:RGB"
 
 set -g history-limit 20000
 set -sg escape-time 0
