@@ -4,7 +4,7 @@ node.reverse_merge!(
   brew: {
     tap: [],
     packages: [
-      "fish", "git", "tmux",
+      "fish", "git", "tmux", "eza",
       "percona-toolkit", "pgbadger",
     ],
     cask_packages: [],

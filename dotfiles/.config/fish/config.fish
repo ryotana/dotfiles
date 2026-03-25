@@ -14,6 +14,9 @@ alias less='less -R'
 alias g='git'
 alias gs='git status'
 alias rg='rg --hidden'
+alias l='eza --icons --group-directories-first'
+alias ll='eza -la --icons --group-directories-first --git'
+alias lt='eza --tree --level=2 --icons'
 
 # path
 fish_add_path $HOME/bin
