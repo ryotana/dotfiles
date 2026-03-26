@@ -23,9 +23,9 @@ history = 100000
 multiplier = 3
 
 [font]
-normal = { family = "HackGen Console NF", style = "Regular" }
-bold = { family = "HackGen Console NF", style = "Bold" }
-italic = { family = "HackGen Console NF", style = "Italic" }
-bold_italic = { family = "HackGen Console NF", style = "Bold Italic" }
-size = 13.0
-offset = { x = 0, y = 2 }
+normal = { family = "HackGen35 Console NF", style = "Regular" }
+bold = { family = "HackGen35 Console NF", style = "Bold" }
+italic = { family = "HackGen35 Console NF", style = "Italic" }
+bold_italic = { family = "HackGen35 Console NF", style = "Bold Italic" }
+size = 12
+offset = { x = 0, y = 1 }
