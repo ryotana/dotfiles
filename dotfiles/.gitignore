@@ -26,3 +26,5 @@ CLAUDE.local.md
 .claude/tmp
 .claude/output
 .claude/settings.local.json
+.serena/*
+!.serena/project.yml
