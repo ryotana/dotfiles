@@ -1,0 +1,9 @@
+*~
+*.swp
+.git
+.svn
+
+.terraform
+__pycache__/
+node_modules/
+vendor/bundle/

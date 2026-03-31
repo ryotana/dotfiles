@@ -18,6 +18,7 @@ include_cookbook "dotfiles"
 %w[
   .gitconfig
   .gitignore
+  .rgignore
   .tigrc
   .my.cnf
   .vimrc
