@@ -1,4 +1,10 @@
 {
+  "env": {
+    "ENABLE_TOOL_SEARCH": "1",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "MAX_MCP_OUTPUT_TOKENS": "200000",
+    "BASH_MAX_TIMEOUT_MS": "600000"
+  },
   "permissions": {
     "allow": [
       "Read",
@@ -104,7 +110,8 @@
       "Bash(kubectl drain:*)",
       "Bash(kubectl cordon:*)",
       "Bash(sudo:*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "enableAllProjectMcpServers": true,
   "hooks": {
@@ -142,10 +149,5 @@
   "language": "japanese",
   "alwaysThinkingEnabled": true,
   "autoUpdate": true,
-  "env": {
-    "ENABLE_TOOL_SEARCH": 1,
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": 1,
-    "MAX_MCP_OUTPUT_TOKENS": 200000,
-    "BASH_MAX_TIMEOUT_MS": 600000
-  }
+  "skipAutoPermissionPrompt": true
 }
