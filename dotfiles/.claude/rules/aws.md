@@ -24,3 +24,21 @@ direnv exec . aws sts get-caller-identity
 4. 監視アラートへの影響
 5. バックアップが取得済みか
 6. デプロイ後の検証方法（ヘルスチェック、smoke test）が明確か
+
+## KMS暗号化・復号
+可能な限り `~/bin/aws-kms` コマンドを使用する。
+
+```
+aws-kms --help
+Usage: aws-kms <command> [options]
+
+Commands:
+  encrypt, e    Encrypt plaintext using AWS KMS
+  decrypt, d    Decrypt ciphertext using AWS KMS
+
+Options:
+  -k, --key-id KEY_ID   KMS key ID (encrypt only, required)
+  -t, --text TEXT        Input text directly
+  -f, --file FILE        Input from file
+  -r, --region REGION    AWS region (default: ap-northeast-1)
+```
