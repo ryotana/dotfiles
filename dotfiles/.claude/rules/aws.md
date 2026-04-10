@@ -1,7 +1,9 @@
 # Claude Rule (AWS)
 
 ## 認証情報の読み込み
-- `.envrc` の有無を確認してから作業を開始すること
+### direnv
+`.envrc` が存在する場合、direnvを用いてAWSプロファイルを読み取ること。
+
 - 各ディレクトリに `.envrc` が存在する場合、`direnv exec .` 経由でコマンドを実行する
     - これにより環境ごとのAWSプロファイルが自動的に適用される
 
@@ -11,6 +13,18 @@ direnv exec . terraform plan
 
 # AWS CLI
 direnv exec . aws sts get-caller-identity
+```
+
+### aws-vault
+`.envrc` が存在しない場合、aws-vaultを用いてAWSプロファイルを読み取ること。
+（AWSプロファイル名をコンテキストから推測できない場合、ユーザに確認を行うこと）
+
+```bash
+# Terraform
+aws-vault exec $profile -- terraform plan
+
+# AWS CLI
+aws-vault exec $profile --  aws sts get-caller-identity
 ```
 
 ## 破壊的操作の制限
