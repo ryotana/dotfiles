@@ -6,7 +6,7 @@ if command -v gitleaks >/dev/null 2>&1; then
   if [ -f ".gitleaks.toml" ]; then
     gitleaks protect --staged --redact --no-banner -c .gitleaks.toml
   else
-    gitleaks protect --staged --redact --no-banner
+    gitleaks protect --staged --redact --no-banner -c ~/.config/gitleaks/.gitleaks.toml
   fi
 else
   echo "WARNING: gitleaks not found" >&2

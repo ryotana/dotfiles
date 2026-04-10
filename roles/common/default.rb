@@ -5,6 +5,7 @@
   #{node[:userhome]}/.config/fish
   #{node[:userhome]}/.config/fish/conf.d
   #{node[:userhome]}/.claude
+  #{node[:userhome]}/.config/gitleaks
   #{node[:userhome]}/.aws
 ].each do |dir|
   directory dir do
@@ -26,6 +27,7 @@ include_cookbook "dotfiles"
   .config/fish/config.fish
   .config/fish/functions
   .config/fish/conf.d/claude.fish
+  .config/gitleaks/.gitleaks.toml
   .claude/CLAUDE.md
   .claude/settings.json
   .claude/mcp.json

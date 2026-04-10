@@ -1,0 +1,9 @@
+title = "Global gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "allow slack webhook URLs"
+regexTarget = "match"
+regexes = ['''hooks\.slack\.com''']
