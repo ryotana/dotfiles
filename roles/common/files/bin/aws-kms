@@ -14,7 +14,7 @@ Options:
   -k, --key-id KEY_ID   KMS key ID (encrypt only, required)
   -t, --text TEXT        Input text directly
   -f, --file FILE        Input from file
-  -r, --region REGION    AWS region (default: ap-northeast-1)
+  -r, --region REGION    AWS region (default: \$AWS_REGION, \$AWS_DEFAULT_REGION, or ap-northeast-1)
 EOF
   exit 1
 }
@@ -22,7 +22,7 @@ EOF
 parse_opts() {
   text=null
   file=null
-  region='ap-northeast-1'
+  region="${AWS_REGION:-${AWS_DEFAULT_REGION:-ap-northeast-1}}"
   key_id=null
 
   set +u
