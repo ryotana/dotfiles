@@ -86,7 +86,7 @@
       "Bash(actionlint:*)",
       "Bash(sudo ./run.sh)",
       "mcp__aws-knowledge",
-      "mcp__awslabs_terraform-mcp-server",
+      "mcp__hashicorp_terraform-mcp-server",
       "mcp__awslabs_aws-pricing-mcp-server",
       "mcp__awslabs_billing-cost-management-mcp-server",
       "mcp__context7",

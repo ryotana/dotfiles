@@ -22,14 +22,14 @@
       },
       "disabled": false
     },
-    "awslabs.terraform-mcp-server": {
-      "command": "uvx",
+    "hashicorp.terraform-mcp-server": {
+      "command": "docker",
       "args": [
-        "awslabs.terraform-mcp-server@latest"
+        "run",
+        "-i",
+        "--rm",
+        "hashicorp/terraform-mcp-server:latest"
       ],
-      "env": {
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      },
       "disabled": false
     }
   }
