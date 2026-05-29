@@ -36,7 +36,7 @@ sudo ./run.sh -x
 - **lib/bootstrap.rb** — ヘルパーメソッド群と実行シーケンス
 - **nodes/** — 属性定義のみ。`node.reverse_merge!` で値を設定。**リソース作成は禁止**
 - **roles/** — リソースを作成するレシピ群。`default.rb` と任意の `files/` を持つ
-- **cookbooks/** — 再利用可能な設定単位。`dotfiles` cookbook が `dotfile_link` / `dotfile_template` ヘルパーを提供。その他（homebrew, tmux, docker, anyenv）はノードの `node[:cookbooks]` で有効化
+- **cookbooks/** — 再利用可能な設定単位。`dotfiles` cookbook が `dotfile_link` / `dotfile_template` / `dotfile_merged_json` ヘルパーを提供。その他（homebrew, tmux, docker, anyenv）はノードの `node[:cookbooks]` で有効化
 - **dotfiles/** — `$HOME` にシンボリックリンクされる実際の設定ファイル群
 - **plugins/** — 環境固有の設定（後述）
 
@@ -65,9 +65,11 @@ plugins/<name>/
 └── templates/           # plugin_template_fragment() で集約されるフラグメント
 ```
 
-**フラグメント集約**: `dotfile_template` 内の ERB テンプレートから `plugin_fragments("some/path")` を呼ぶと、有効な全プラグインの `dotfiles/some/path/*` を結合して返す。`plugin_template_fragment("file.conf")` は `templates/file.conf` を結合する。これにより、プラグインごとに設定を分割しつつ一つのファイルに集約できる。
+**フラグメント集約**: プラグインごとに分割した設定を 1 ファイルに集約する仕組み。recipe 内（`roles/*/default.rb` 等）で `plugin_fragments("some/path")` を呼ぶと、有効な全プラグインの `dotfiles/some/path/*` を結合した文字列を返す（`plugin_template_fragment("file.conf")` は各プラグインの `templates/file.conf` を結合）。結果は `dotfile_template` の `vars` 経由で ERB に渡して埋め込む。mruby 版 mitamae の ERB からはヘルパーや `JSON` を直接呼べないため、必ず recipe 側で評価して `vars` で渡すこと。実例: `roles/linux/default.rb` → `dotfiles/.aws/config.erb`（`@plugin_fragments` を参照）。
 
-**dotfile_link の source パラメータ**: プラグインの recipes 内で `dotfile_link ".myconfig", source: "/path/to/plugin/dotfiles"` と指定すると、プラグイン固有の dotfiles ディレクトリからシンボリックリンクを作成できる。
+**JSON 設定の集約**: JSON は文字列結合できないため `dotfile_merged_json` を使う。`dotfiles/<name>` のベースと有効プラグインの `dotfiles/<name>` 断片を jq の `*` 演算子（deep merge）でマージして `$HOME/<name>` を生成する。実例: `roles/common/default.rb` の `.claude/settings.json`（ベースは `dotfiles/.claude/settings.base.json`、EI 固有差分は `plugins/ei/dotfiles/.claude/settings.json`）。
+
+**define ヘルパーのパラメータはブロック構文で渡す**: `dotfile_link` / `dotfile_merged_json` 等の define 生成ヘルパーへのパラメータは、`dotfile_link ".myconfig" do source "/path/to/plugin/dotfiles" end` のようにブロック内で設定する（`dotfile_link ".x", source: "..."` のインライン引数形式は `wrong number of arguments` で不可）。プラグイン固有の dotfiles をリンクする場合は `source` にそのディレクトリを指定する。実例: `plugins/ei/recipes/linux.rb`。
 
 ### 主要なノード属性
 
