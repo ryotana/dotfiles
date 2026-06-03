@@ -13,7 +13,7 @@ alias rsync='ionice -c 2 -n 7 nice -n 19 rsync --bwlimit=10250' # 100Mbps
 alias less='less -R'
 alias g='git'
 alias gs='git status'
-alias rg='rg --hidden'
+alias rg='rg -uu'
 alias l='eza --icons --group-directories-first'
 alias ll='eza -l --icons --group-directories-first --git'
 alias lla='eza -la --icons --group-directories-first --git'
