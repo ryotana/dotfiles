@@ -146,6 +146,10 @@
   "enabledPlugins": {
     "code-review@claude-plugins-official": true
   },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "language": "japanese",
   "alwaysThinkingEnabled": true,
   "skipAutoPermissionPrompt": true,
