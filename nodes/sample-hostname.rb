@@ -1,6 +1,6 @@
 node.reverse_merge!(
   plugins: ["ei"],
-  cookbooks: ["homebrew", "tmux", "docker", "anyenv"],
+  cookbooks: ["homebrew", "tmux", "docker", "public-nginx", "anyenv"],
   brew: {
     tap: [],
     packages: [
