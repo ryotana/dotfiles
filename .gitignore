@@ -8,3 +8,6 @@ nodes/*
 !nodes/sample-hostname.rb
 
 plugins/*
+
+# Claude
+dotfiles/.claude/rules/ei
