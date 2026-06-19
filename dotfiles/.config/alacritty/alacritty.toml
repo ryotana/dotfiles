@@ -29,3 +29,11 @@ italic = { family = "HackGen35 Console NF", style = "Italic" }
 bold_italic = { family = "HackGen35 Console NF", style = "Bold Italic" }
 size = 12
 offset = { x = 0, y = 1 }
+
+[[hints.enabled]]
+regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\\s<>\"{}\\^`]+"
+hyperlinks = true
+command = "open"
+post_processing = true
+mouse = { enabled = true, mods = "Control" }
+binding = { key = "U", mods = "Control|Shift" }
