@@ -11,6 +11,16 @@ readonly DEFAULT_SPINNER_MESSAGE="doing ..."
 readonly TIMESTAMP=$(date "+%Y%m%d-%H%M")
 readonly TMP_BASE_DIR="/var/tmp/terraform"
 
+# Resolve GNU time binary (gtime on macOS via gnu-time, /usr/bin/time on Linux).
+# Empty when GNU time is unavailable; timing is then skipped.
+TIME_BIN=""
+if command -v gtime >/dev/null 2>&1; then
+    TIME_BIN="gtime"
+elif /usr/bin/time -f '' true >/dev/null 2>&1; then
+    TIME_BIN="/usr/bin/time"
+fi
+readonly TIME_BIN
+
 # ----------------------------------------------------------------------------
 # Global Variables (initialized in init())
 # ----------------------------------------------------------------------------
@@ -170,6 +180,21 @@ parse_arguments() {
 # Terraform Helper Functions
 # ----------------------------------------------------------------------------
 
+# Run a command with GNU time, printing elapsed time.
+# Falls back to running the command directly when GNU time is unavailable.
+# Arguments:
+#   $1 - Label for the elapsed time line
+#   $@ - Command to execute
+timed() {
+    local label=$1
+    shift
+    if [ -n "$TIME_BIN" ]; then
+        "$TIME_BIN" -f "\n${label}, elapsed %E" "$@"
+    else
+        "$@"
+    fi
+}
+
 # Format terraform files recursively
 format_terraform() {
     terraform fmt -recursive 2>&1 >/dev/null
@@ -286,7 +311,7 @@ cmd_clean() {
 # Initialize terraform
 cmd_init() {
     cmd_clean
-    /usr/bin/time -f '\ntf init, elapsed %E' terraform init
+    timed 'tf init' terraform init
 }
 
 # Lock provider versions
@@ -316,12 +341,12 @@ cmd_plan() {
         # Plan with specific targets
         local escaped_target=$(echo "$target" | sed 's/"/\\"/g')
         local out_file="$CACHEDIR/plan-$TIMESTAMP.patch.out"
-        local plan_cmd="/usr/bin/time -f '\ntf plan, elapsed %E' terraform plan -target={$escaped_target,dummy.dummy} -out=$out_file $cmd_suffix"
+        local plan_cmd="timed 'tf plan' terraform plan -target={$escaped_target,dummy.dummy} -out=$out_file $cmd_suffix"
         run_with_spinner "$plan_cmd" "tf plan -target={$escaped_target} ..."
     else
         # Full plan
         local out_file="$CACHEDIR/plan-$TIMESTAMP.full.out"
-        local plan_cmd="/usr/bin/time -f '\ntf plan, elapsed %E' terraform plan -out=$out_file $cmd_suffix"
+        local plan_cmd="timed 'tf plan' terraform plan -out=$out_file $cmd_suffix"
         run_with_spinner "$plan_cmd" "tf plan ..."
     fi
     set -u
@@ -339,7 +364,7 @@ cmd_apply() {
     echo "tf apply with ${latest_out}"
 
     if confirm 'Are you sure want to do?'; then
-        /usr/bin/time -f '\ntf apply, elapsed %E' terraform apply "$latest_out"
+        timed 'tf apply' terraform apply "$latest_out"
     else
         echo "Apply cancelled"
         exit 0

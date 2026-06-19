@@ -1,0 +1,13 @@
+services:
+  public-nginx:
+    image: nginx:stable
+    ports:
+      - "80:80"
+    volumes:
+      - type: bind
+        source: "/var/www/public"
+        target: "/var/www/public"
+      - type: bind
+        source: "./default.conf"
+        target: "/etc/nginx/conf.d/default.conf"
+        read_only: true
