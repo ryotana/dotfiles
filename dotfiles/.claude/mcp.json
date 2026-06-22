@@ -25,6 +25,19 @@
         "hashicorp/terraform-mcp-server:latest"
       ],
       "disabled": false
+    },
+    "playwright": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--init",
+        "--pull=always",
+        "mcr.microsoft.com/playwright/mcp",
+        "--isolated"
+      ],
+      "disabled": false
     }
   }
 }
