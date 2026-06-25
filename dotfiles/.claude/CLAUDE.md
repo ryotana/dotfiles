@@ -1,5 +1,7 @@
 # CLAUDE.md (User-level)
 
+You must think in English, but interact with the user in Japanese.
+
 ## 基本方針
 - 日本語を使用する
 - タイムゾーンはJSTを使用する
