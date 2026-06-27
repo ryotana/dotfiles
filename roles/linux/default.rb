@@ -22,6 +22,18 @@ Dir.glob(File.expand_path("../files/bin/*", __FILE__)) do |bin|
   end
 end
 
+lltsv_ver = "0.7.0"
+unless node[:is_arm]
+  execute "install-lltsv" do
+    command <<~BASH
+      curl -fsSL https://github.com/sonots/lltsv/releases/download/v#{lltsv_ver}/lltsv_linux_amd64 \
+        -o #{node[:userhome]}/bin/lltsv && chmod +x #{node[:userhome]}/bin/lltsv
+    BASH
+    user node[:username]
+    not_if "test -x #{node[:userhome]}/bin/lltsv"
+  end
+end
+
 # cloud-init
 %w[
   001_create_tmpdir.sh
