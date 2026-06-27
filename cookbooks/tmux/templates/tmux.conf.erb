@@ -115,4 +115,4 @@ set -g status-left-length 60
 set -g status-left "#[fg=white][S=#[fg=red]#S#[fg=white] W=#[fg=yellow]#I #[fg=white]P=#[fg=cyan]#P#[fg=white]] [on #[fg=red]#(hostname -s) #[fg=colour136](<%= prefix %>)#[fg=white]]"
 
 set -g status-right-length 60
-set -g status-right '#[fg=white][ #[fg=red]#(~/bin/running_container)#[fg=white]] #[fg=white][󰓅 #[fg=red]#(~/bin/loadaverage)#[fg=white]] [󰍛 #[fg=red]#(~/bin/available_memory)#[fg=white]MB] [󰋊 #[fg=red]#(~/bin/available_disk)#[fg=white]GB]'
+set -g status-right '#[fg=white][󰚩 #[fg=red]#(~/bin/claude_sessions)#[fg=white]] #[fg=white][ #[fg=red]#(~/bin/running_container)#[fg=white]] #[fg=white][󰓅 #[fg=red]#(~/bin/loadaverage)#[fg=white]] [󰍛 #[fg=red]#(~/bin/available_memory)#[fg=white]MB] [󰋊 #[fg=red]#(~/bin/available_disk)#[fg=white]GB]'
