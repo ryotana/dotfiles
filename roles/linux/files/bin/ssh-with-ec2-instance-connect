@@ -1,0 +1,85 @@
+#!/bin/bash
+
+set -eo pipefail
+
+# --- Global Variables ---
+instance_id="null"
+aws_profile="null"
+ssh_key="null"
+
+# --- Functions ---
+
+usage() {
+    cat <<'EOF'
+Usage: ssh-with-ec2-instance-connect --instance_id ID --aws_profile PROFILE --ssh_key PATH
+
+Push a temporary SSH public key via EC2 Instance Connect and login as ec2-user.
+
+Options:
+  -I, --instance_id ID       Target EC2 instance id.
+  -A, --aws_profile PROFILE  AWS profile (required).
+  -K, --ssh_key PATH         SSH public key path (required).
+  -h, --help                 Show this help and exit.
+EOF
+}
+
+parse_arguments() {
+    local OPTIND=1
+    while getopts hIAK-: opt; do
+        local optarg="${!OPTIND}"
+        [[ "$opt" = - ]] && opt="-$OPTARG"
+
+        case "-$opt" in
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            -I|--instance_id)
+                instance_id="$optarg"
+                OPTIND=$((OPTIND + 1))
+                ;;
+            -A|--aws_profile)
+                aws_profile="$optarg"
+                OPTIND=$((OPTIND + 1))
+                ;;
+            -K|--ssh_key)
+                ssh_key="$optarg"
+                OPTIND=$((OPTIND + 1))
+                ;;
+            --*)
+                echo "$0: Illegal option -- ${opt##-}" >&2
+                exit 1
+                ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+}
+
+require_arguments() {
+    local missing=0
+    require_one() {
+        if [[ "$2" = "null" ]]; then
+            echo "$1 is required" >&2
+            missing=1
+        fi
+    }
+    require_one "-I|--instance_id" "$instance_id"
+    require_one "-A|--aws_profile" "$aws_profile"
+    require_one "-K|--ssh_key" "$ssh_key"
+    [[ "$missing" -eq 0 ]] || exit 1
+}
+
+# --- Main ---
+
+main() {
+    AWS_PROFILE="$aws_profile" aws ec2-instance-connect send-ssh-public-key --instance-id "$instance_id" --instance-os-user ec2-user --ssh-public-key "file://$ssh_key"
+    AWS_PROFILE="$aws_profile" ssh "ec2-user@$instance_id"
+}
+
+# --- Entrypoint ---
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    parse_arguments "$@"
+    require_arguments
+    main
+fi
