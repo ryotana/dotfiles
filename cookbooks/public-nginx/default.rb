@@ -24,6 +24,13 @@ link "#{node[:userhome]}/public" do
   force false
 end
 
+# コンテナ内の nginx worker (uid 101) が PUT で書き込むため 0777
+directory File.join(www_dir, "uploads") do
+  owner node[:username]
+  group node[:usergroup]
+  mode "0777"
+end
+
 ["#{node[:userhome]}/apps", app_dir].each do |dir|
   directory dir do
     owner node[:username]
@@ -31,7 +38,7 @@ end
   end
 end
 
-%w[docker-compose.yml default.conf].each do |f|
+%w[docker-compose.yml default.conf upload.html].each do |f|
   remote_file File.join(app_dir, f) do
     source File.expand_path("../files/#{f}", __FILE__)
     owner node[:username]

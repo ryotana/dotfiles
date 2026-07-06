@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>~/public/uploads</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%2312161d'/%3E%3Ctext x='8' y='12' font-size='11' font-family='monospace' fill='%23f2a950' text-anchor='middle'%3E~%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #12161d;
+    --panel: #1a2029;
+    --line: #2a3341;
+    --text: #e9e5db;
+    --muted: #8f98a8;
+    --accent: #f2a950;
+    --ok: #7dc98f;
+    --err: #e07b6a;
+    --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 2.5rem 1.25rem 4rem;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, sans-serif;
+    line-height: 1.6;
+  }
+  main { max-width: 860px; margin: 0 auto; }
+
+  .eyebrow {
+    margin: 0 0 .4rem;
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 { margin: 0 0 .3rem; font-size: clamp(1.5rem, 4.5vw, 2.2rem); font-weight: 600; }
+  h1 a {
+    font-family: var(--mono);
+    color: var(--text);
+    text-decoration: none;
+  }
+  h1 a:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+  h1 .tilde { color: var(--accent); }
+  .lede { margin: 0 0 2rem; color: var(--muted); font-size: .95rem; }
+
+  #drop {
+    border: 1.5px dashed var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    padding: 3rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  #drop:hover, #drop:focus-visible, #drop.over {
+    border-color: var(--accent);
+    background: #1e2530;
+  }
+  #drop.flash { animation: flash .5s ease-out; }
+  @keyframes flash {
+    0% { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(242, 169, 80, .25); }
+    100% { box-shadow: 0 0 0 4px rgba(242, 169, 80, 0); }
+  }
+  #drop .main-hint { font-size: 1.15rem; }
+  #drop .sub-hint { margin-top: .5rem; font-size: .85rem; color: var(--muted); }
+  kbd {
+    font-family: var(--mono);
+    font-size: .9em;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: .15em .5em;
+  }
+  .meta {
+    margin: .75rem 0 0;
+    font-size: .8rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    text-align: center;
+  }
+
+  ul { list-style: none; margin: 2rem 0 0; padding: 0; }
+  li {
+    margin: 1.25rem 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--panel);
+  }
+  .plate {
+    display: flex;
+    justify-content: center;
+    background: repeating-conic-gradient(#1d232d 0 25%, #171c24 0 50%) 0 0 / 24px 24px;
+  }
+  .plate img {
+    display: block;
+    max-width: 100%;
+    max-height: min(480px, 60vh);
+    animation: develop .5s ease-out;
+  }
+  @keyframes develop {
+    from { opacity: 0; filter: blur(6px) saturate(.6); }
+  }
+  .plate .filetype {
+    padding: 3rem 1rem;
+    font-family: var(--mono);
+    color: var(--muted);
+  }
+  .rows { padding: .6rem .75rem; }
+  .row { display: flex; align-items: center; gap: .6rem; margin: .25rem 0; }
+  .lbl {
+    flex: 0 0 3em;
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .1em;
+    color: var(--muted);
+  }
+  .row code {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: .82rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .row button {
+    flex: 0 0 auto;
+    font: inherit;
+    font-size: .78rem;
+    color: var(--accent);
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: .15rem .7rem;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .row button:hover { border-color: var(--accent); }
+  .row button.done { color: var(--ok); border-color: var(--ok); }
+  li.error { padding: .75rem 1rem; color: var(--err); font-size: .9rem; }
+  li.pending { padding: .75rem 1rem; color: var(--muted); font-family: var(--mono); font-size: .85rem; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    #drop.flash, .plate img { animation: none; }
+  }
+  @media (max-width: 540px) {
+    .row { flex-wrap: wrap; }
+    .row code { flex-basis: 100%; order: 1; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">public-nginx &middot; image drop</p>
+  <h1><a href="/uploads/"><span class="tilde">~</span>/public/uploads</a></h1>
+  <p class="lede">スクリーンショットを Ctrl+V で貼り付けて、パスを Claude Code に渡す。</p>
+
+  <div id="drop" tabindex="0" role="button" aria-label="ファイルを選択">
+    <div class="main-hint"><kbd>Ctrl</kbd> + <kbd>V</kbd> で貼り付け</div>
+    <div class="sub-hint">ドラッグ&amp;ドロップ / クリックでファイル選択</div>
+  </div>
+  <p class="meta">保存先 /var/www/public/uploads/ &middot; 上限 100MB</p>
+
+  <ul id="list"></ul>
+</main>
+<script>
+const list = document.getElementById("list");
+const drop = document.getElementById("drop");
+const picker = document.createElement("input");
+picker.type = "file";
+picker.multiple = true;
+
+function ts() {
+  const d = new Date(), p = n => String(n).padStart(2, "0");
+  return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "-" +
+         p(d.getHours()) + p(d.getMinutes()) + p(d.getSeconds());
+}
+
+// http (非 secure context) では navigator.clipboard が使えないため fallback
+function copy(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text);
+    return;
+  }
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  ta.remove();
+}
+
+function renderResult(li, name, isImage) {
+  const path = "/uploads/" + name;
+  li.className = "";
+  li.textContent = "";
+
+  const plate = document.createElement("div");
+  plate.className = "plate";
+  if (isImage) {
+    const link = document.createElement("a");
+    link.href = path;
+    link.target = "_blank";
+    const img = document.createElement("img");
+    img.src = path;
+    img.alt = name;
+    link.appendChild(img);
+    plate.appendChild(link);
+  } else {
+    const span = document.createElement("span");
+    span.className = "filetype";
+    span.textContent = name;
+    plate.appendChild(span);
+  }
+  li.appendChild(plate);
+
+  const rows = document.createElement("div");
+  rows.className = "rows";
+  for (const [label, text] of [["URL", location.origin + path],
+                               ["PATH", "/var/www/public/uploads/" + name]]) {
+    const row = document.createElement("div");
+    row.className = "row";
+    const lbl = document.createElement("span");
+    lbl.className = "lbl";
+    lbl.textContent = label;
+    const code = document.createElement("code");
+    code.textContent = text;
+    const btn = document.createElement("button");
+    btn.textContent = "コピー";
+    btn.onclick = () => {
+      copy(text);
+      btn.textContent = "✓ コピー";
+      btn.classList.add("done");
+      setTimeout(() => { btn.textContent = "コピー"; btn.classList.remove("done"); }, 1500);
+    };
+    row.append(lbl, code, btn);
+    rows.appendChild(row);
+  }
+  li.appendChild(rows);
+}
+
+async function upload(file) {
+  const name = ts() + "-" + (file.name || "clipboard.png").replace(/[^\w.-]+/g, "_");
+  const li = document.createElement("li");
+  li.className = "pending";
+  li.textContent = "uploading " + name + " ...";
+  list.prepend(li);
+  try {
+    const res = await fetch("/uploads/" + name, { method: "PUT", body: file });
+    if (!res.ok) throw new Error(res.status + " " + res.statusText);
+    renderResult(li, name, file.type.startsWith("image/"));
+  } catch (e) {
+    li.className = "error";
+    li.textContent = "アップロード失敗: " + name + " (" + e.message + ")";
+  }
+}
+
+document.addEventListener("paste", e => {
+  let hit = false;
+  for (const item of e.clipboardData.items) {
+    const f = item.getAsFile();
+    if (f) { upload(f); hit = true; }
+  }
+  if (hit) {
+    drop.classList.remove("flash");
+    void drop.offsetWidth;
+    drop.classList.add("flash");
+  }
+});
+["dragover", "dragleave", "drop"].forEach(ev =>
+  drop.addEventListener(ev, e => {
+    e.preventDefault();
+    drop.classList.toggle("over", ev === "dragover");
+    if (ev === "drop") [...e.dataTransfer.files].forEach(upload);
+  })
+);
+drop.addEventListener("click", () => picker.click());
+drop.addEventListener("keydown", e => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); picker.click(); }
+});
+picker.onchange = () => { [...picker.files].forEach(upload); picker.value = ""; };
+</script>
+</body>
+</html>
