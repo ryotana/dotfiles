@@ -62,8 +62,8 @@ sudo ./run.sh -x
 | `homebrew` | Homebrew / Linuxbrew の導入と `node[:brew]`（tap, packages, cask_packages）の適用。`default.rb` が `darwin.rb` / `linux.rb` に分岐 |
 | `anyenv` | anyenv を `~/.anyenv` に導入し、`node[:anyenv]`（plugins, envs）に従って rbenv/nodenv 等をインストール |
 | `tmux` | tpm の導入、`~/.tmux.conf` をテンプレートから生成、ステータス表示スクリプトを `~/bin` にリンク |
-| `public-nginx` | （AL2023 のみ）`/var/www/public` を docker compose の nginx で配信する systemd --user サービスを構成 |
 | `docker` | AL2023 は dnf で docker engine・docker-compose・buildx を導入し月次 `docker-prune` の systemd timer を設定、macOS は `homebrew` クックブックを内部で読み込み Docker Desktop（brew cask）を導入 |
+| `public-nginx` | `docker` クックブックを内部で読み込み、`/var/www/public` を docker compose の nginx で配信。symlink は AL2023 が `~/public`、macOS が `~/public-www`（既定の `~/Public` と衝突するため）。AL2023 は systemd --user サービス、macOS は LaunchAgent として常駐 |
 
 ### dotfile の追加手順
 
