@@ -9,6 +9,6 @@ node.reverse_merge!(
       "font-hackgen-nerd", "im-select", "fish", "fzf",
       "awscli",
     ],
-    cask_packages: ["karabiner-elements", "google-japanese-ime", "alfred", "bartender", "session-manager-plugin", "alacritty", "1password", "firefox", "vivaldi", "notion", "notion-calendar", "visual-studio-code", "claude"],
+    cask_packages: ["karabiner-elements", "google-japanese-ime", "alfred", "bartender", "session-manager-plugin", "alacritty", "1password", "firefox", "vivaldi", "notion", "notion-calendar", "visual-studio-code", "claude", "finicky"],
   },
 )

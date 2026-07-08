@@ -27,3 +27,9 @@ _aws_fragments = plugin_fragments(".aws/config.darwin.d")
 dotfile_template ".aws/config" do
   vars({ plugin_fragments: _aws_fragments })
 end
+
+_finicky_fragments = plugin_fragments(".finicky.d")
+_finicky_rewrite_fragments = plugin_fragments(".finicky.rewrite.d")
+dotfile_template ".finicky.js" do
+  vars({ plugin_fragments: _finicky_fragments, rewrite_fragments: _finicky_rewrite_fragments })
+end

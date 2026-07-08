@@ -1,0 +1,11 @@
+// finicky configuration (v4)
+// https://github.com/johnste/finicky/wiki/Configuration-(v4)
+export default {
+  defaultBrowser: "Vivaldi",
+  rewrite: [
+<%= @rewrite_fragments %>
+  ],
+  handlers: [
+<%= @plugin_fragments %>
+  ],
+};
