@@ -34,6 +34,7 @@ You must think in English, but interact with the user in Japanese.
 - Github: gh
 - セキュリティ: gitleaks
 - 並列作業: parallel
+- PDF読み取り : poppler
 
 ## ファイル生成
 - 成果物やスクリプトはプロジェクト内の `.claude/output` に適切なディレクトリを切って保存する

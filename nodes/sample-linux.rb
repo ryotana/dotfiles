@@ -5,7 +5,7 @@ node.reverse_merge!(
     tap: [],
     packages: [
       "fish", "git", "gitleaks", "tmux", "eza", "diff-so-fancy", "colordiff", "parallel",
-      "direnv", "ripgrep", "fd", "fzf", "ast-grep", "scc", "sd",
+      "direnv", "ripgrep", "fd", "fzf", "ast-grep", "scc", "sd", "poppler",
       "jq", "jo", "yq",
       "shellcheck", "yamllint", "actionlint",
       "percona-toolkit", "pgbadger",
