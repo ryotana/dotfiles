@@ -155,5 +155,7 @@
   "language": "japanese",
   "alwaysThinkingEnabled": true,
   "skipAutoPermissionPrompt": true,
-  "autoUpdate": true
+  "autoUpdate": true,
+  "agentPushNotifEnabled": true,
+  "inputNeededNotifEnabled": true
 }
