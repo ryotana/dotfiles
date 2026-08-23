@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# Claude Code statusLine: ccusage の出力にサブスクリプションの利用状況を追記する
+
+set -uo pipefail
+
+input=$(cat)
+
+usage_line=$(printf '%s' "${input}" | npx -y ccusage@latest statusline 2>/dev/null)
+
+rate_limits=$(printf '%s' "${input}" | jq -r '
+    .rate_limits as $r
+    | [ ($r.five_hour | select(. != null) | "5h \(.used_percentage | round)% ~\(.resets_at | strflocaltime("%H:%M"))"),
+        ($r.seven_day | select(. != null) | "7d \(.used_percentage | round)% ~\(.resets_at | strflocaltime("%m/%d %H:%M"))") ]
+    | join(" / ")
+    | select(. != "")
+    | "🚦 " + .' 2>/dev/null)
+
+if [[ -n "${usage_line}" ]] && [[ -n "${rate_limits}" ]]; then
+    printf '%s | %s\n' "${usage_line}" "${rate_limits}"
+elif [[ -n "${rate_limits}" ]]; then
+    printf '%s\n' "${rate_limits}"
+else
+    printf '%s\n' "${usage_line}"
+fi

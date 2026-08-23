@@ -15,8 +15,6 @@
       "MultiEdit",
       "WebFetch",
       "WebSearch",
-      "Bash(bash:*)",
-      "Bash(env:*)",
       "Bash(unset:*)",
       "Bash(test:*)",
       "Bash(pwd:*)",
@@ -26,7 +24,6 @@
       "Bash(tree:*)",
       "Bash(find:*)",
       "Bash(mkdir:*)",
-      "Bash(xargs:*)",
       "Bash(mv:*)",
       "Bash(ln:*)",
       "Bash(readlink:*)",
@@ -57,14 +54,10 @@
       "Bash(aws-vault:*)",
       "Bash(gcloud:*)",
       "Bash(terraform:*)",
-      "Bash(python:*)",
-      "Bash(python3:*)",
-      "Bash(ruby:*)",
       "Bash(ruby-lsp:*)",
       "Bash(rbenv:*)",
       "Bash(bundle:*)",
       "Bash(uvx:*)",
-      "Bash(npx:*)",
       "Bash(direnv exec:*)",
       "Bash(shellcheck:*)",
       "Bash(head:*)",
@@ -75,7 +68,6 @@
       "Bash(make:*)",
       "Bash(go:*)",
       "Bash(npm:*)",
-      "Bash(node:*)",
       "Bash(pip:*)",
       "Bash(pip3:*)",
       "Bash(dig:*)",
@@ -140,7 +132,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "npx -y ccusage@latest statusline",
+    "command": "~/bin/claude-statusline",
     "padding": 0
   },
   "enabledPlugins": {
@@ -157,5 +149,13 @@
   "skipAutoPermissionPrompt": true,
   "autoUpdate": true,
   "agentPushNotifEnabled": true,
-  "inputNeededNotifEnabled": true
+  "inputNeededNotifEnabled": true,
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "xhigh"
+    },
+    "claude-fable-5": {
+      "effortLevel": "xhigh"
+    }
+  }
 }

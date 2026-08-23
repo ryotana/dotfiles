@@ -11,4 +11,5 @@ plugins/*
 
 # Claude
 dotfiles/.claude/rules/local
+dotfiles/.claude/rules/sakulab
 dotfiles/.claude/rules/ei
