@@ -24,7 +24,15 @@ define :dotfile_merged_json, base: nil do
     fragment = File.join(root, "plugins", plugin, "dotfiles", params[:name])
     sources << fragment if File.exist?(fragment)
   end
-  merged = run_command("jq -s 'reduce .[] as $x ({}; . * $x)' #{sources.join(" ")}").stdout
+  jq_merge = [
+    'def dedupe: reduce .[] as $i ([]; if any(.[]; . == $i) then . else . + [$i] end);',
+    'def merge($a; $b):',
+    'if ($a | type) == "object" and ($b | type) == "object" then reduce ($b | keys_unsorted[]) as $k ($a; .[$k] = merge(.[$k]; $b[$k]))',
+    'elif ($a | type) == "array" and ($b | type) == "array" then ($a + $b) | dedupe',
+    'else $b end;',
+    'reduce .[] as $x ({}; merge(.; $x))'
+  ].join(" ")
+  merged = run_command("jq -s '#{jq_merge}' #{sources.join(" ")}").stdout
   file File.join(node[:userhome], params[:name]) do
     content merged
     owner node[:username]

@@ -29,7 +29,6 @@ include_cookbook "dotfiles"
   .config/fish/conf.d/claude.fish
   .config/gitleaks/.gitleaks.toml
   .claude/CLAUDE.md
-  .claude/mcp.json
   .claude/no-mcp.json
   .claude/rules
 ].each do |link|
@@ -38,6 +37,10 @@ end
 
 dotfile_merged_json ".claude/settings.json" do
   base ".claude/settings.base.json"
+end
+
+dotfile_merged_json ".claude/mcp.json" do
+  base ".claude/mcp.base.json"
 end
 
 Dir.glob(File.expand_path("../files/bin/*", __FILE__)) do |bin|
