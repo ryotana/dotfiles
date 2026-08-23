@@ -2,6 +2,10 @@
 
 You must think in English, but interact with the user in Japanese.
 
+## ルールの優先順位
+- `~/.claude/rules/` 配下に symlink で配置されたルールは**組織ルール**として扱う
+- 組織ルールと個人ルール（本ファイル・`~/.claude/rules/` 直下の実ファイル）が衝突する場合、**組織ルールを優先する**
+
 ## 基本方針
 - 日本語を使用する
 - タイムゾーンはJSTを使用する
@@ -31,7 +35,7 @@ You must think in English, but interact with the user in Japanese.
 - 分析: jq / jo / yq
 - 置換: sd
 - リンター: tflint / shellcheck / yamllint / actionlint
-- Github: gh
+- Git / Github: git / ghq / gh
 - セキュリティ: gitleaks
 - 並列作業: parallel
 - PDF読み取り : poppler
