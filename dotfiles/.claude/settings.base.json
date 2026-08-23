@@ -103,8 +103,7 @@
       "Bash(kubectl cordon:*)",
       "Bash(sudo:*)"
     ],
-    "defaultMode": "auto",
-    "effortLevel": "xhigh"
+    "defaultMode": "auto"
   },
   "enableAllProjectMcpServers": true,
   "hooks": {
@@ -150,5 +149,13 @@
   "skipAutoPermissionPrompt": true,
   "autoUpdate": true,
   "agentPushNotifEnabled": true,
-  "inputNeededNotifEnabled": true
+  "inputNeededNotifEnabled": true,
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "xhigh"
+    },
+    "claude-fable-5": {
+      "effortLevel": "xhigh"
+    }
+  }
 }
