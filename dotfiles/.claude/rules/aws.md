@@ -56,3 +56,9 @@ Options:
   -f, --file FILE        Input from file
   -r, --region REGION    AWS region (default: ap-northeast-1)
 ```
+
+### 暗号化キー
+暗号化キーの指定が特になければ、credentialsファイルのブロック先頭に記載されているキーを使用する。
+( e.g. `# Use alias/hoge/key` )
+
+なお、コメントがない場合は同じ階層がどのキーで暗号化されているかを調べた上で同様のキーを使用する。
