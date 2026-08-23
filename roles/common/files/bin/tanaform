@@ -281,7 +281,7 @@ cmd_show_log() {
         return 1
     fi
 
-    grep -v -e ': Refreshing state...' -e ': Reading...' -e ': Read complete after' "$latest_log"
+    grep -v -e ': Refreshing state...' -e ': Reading...' -e ': Read complete after' -e ': Opening' -e ': Closing' "$latest_log"
 }
 
 # Show latest log file (full output)
@@ -332,7 +332,7 @@ cmd_plan() {
 
     # Setup logging
     local log_file="$LOGDIR/plan-$TIMESTAMP.log"
-    local filter_cmd="grep --line-buffered -v -e ': Refreshing state...' -e ': Reading...' -e ': Read complete after'"
+    local filter_cmd="grep --line-buffered -v -e ': Refreshing state...' -e ': Reading...' -e ': Read complete after' -e ': Opening' -e ': Closing'"
     local cmd_suffix="| tee $log_file | $filter_cmd"
 
     # Execute plan command
