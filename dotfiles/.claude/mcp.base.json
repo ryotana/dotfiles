@@ -34,8 +34,12 @@
         "--rm",
         "--init",
         "--pull=always",
+        "-v",
+        "${HOME}/.config/playwright-mcp:/state:ro",
         "mcr.microsoft.com/playwright/mcp",
-        "--isolated"
+        "--isolated",
+        "--storage-state",
+        "/state/storage-state.json"
       ],
       "disabled": false
     }

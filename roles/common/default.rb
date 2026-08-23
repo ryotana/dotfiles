@@ -6,6 +6,7 @@
   #{node[:userhome]}/.config/fish/conf.d
   #{node[:userhome]}/.claude
   #{node[:userhome]}/.config/gitleaks
+  #{node[:userhome]}/.config/playwright-mcp
   #{node[:userhome]}/.aws
 ].each do |dir|
   directory dir do
@@ -50,4 +51,13 @@ Dir.glob(File.expand_path("../files/bin/*", __FILE__)) do |bin|
     force false
     action :create
   end
+end
+
+execute "init playwright-mcp storage state" do
+  command <<~CMD
+    printf '{"cookies":[],"origins":[]}\\n' > #{node[:userhome]}/.config/playwright-mcp/storage-state.json
+    chown #{node[:username]}:#{node[:usergroup]} #{node[:userhome]}/.config/playwright-mcp/storage-state.json
+    chmod 644 #{node[:userhome]}/.config/playwright-mcp/storage-state.json
+  CMD
+  not_if "test -f #{node[:userhome]}/.config/playwright-mcp/storage-state.json"
 end
