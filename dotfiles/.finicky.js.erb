@@ -6,6 +6,11 @@ export default {
 <%= @rewrite_fragments %>
   ],
   handlers: [
+    {
+      // Krisp は Chrome で開く
+      match: "app.krisp.ai/*",
+      browser: "Google Chrome",
+    },
 <%= @plugin_fragments %>
   ],
 };
