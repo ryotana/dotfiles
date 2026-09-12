@@ -149,7 +149,6 @@
   "skipAutoPermissionPrompt": true,
   "autoUpdate": true,
   "agentPushNotifEnabled": true,
-  "inputNeededNotifEnabled": true,
   "modelSettings": {
     "claude-opus-5": {
       "effortLevel": "xhigh"
@@ -158,4 +157,6 @@
       "effortLevel": "xhigh"
     }
   }
+  "tui": "fullscreen",
+  "inputNeededNotifEnabled": true
 }
