@@ -16,7 +16,10 @@ git "clone tpm" do
   destination "#{node[:userhome]}/.tmux/plugins/tpm"
 end
 
-_plugin_tmux = plugin_template_fragment("tmux.conf")
+_plugin_tmux = [
+  plugin_template_fragment("tmux.conf"),
+  plugin_template_fragment(node[:is_darwin] ? "tmux.conf.darwin" : "tmux.conf.linux"),
+].reject { |f| f.empty? }.join("\n")
 
 template File.join(node[:userhome] + "/.tmux.conf") do
   source File.expand_path("../templates/tmux.conf.erb", __FILE__)
