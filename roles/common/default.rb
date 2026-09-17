@@ -38,6 +38,7 @@ end
 
 dotfile_merged_json ".claude/settings.json" do
   base ".claude/settings.base.json"
+  overlay node[:is_darwin] ? ".claude/settings.darwin.json" : ".claude/settings.linux.json"
 end
 
 dotfile_merged_json ".claude/mcp.json" do

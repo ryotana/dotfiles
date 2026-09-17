@@ -17,10 +17,11 @@ define :dotfile_template, vars: {} do
   end
 end
 
-define :dotfile_merged_json, base: nil do
+define :dotfile_merged_json, base: nil, overlay: nil do
   root = File.expand_path("../../..", __FILE__)
   dest = File.join(node[:userhome], params[:name])
   sources = [File.join(root, "dotfiles", params[:base])]
+  sources << File.join(root, "dotfiles", params[:overlay]) if params[:overlay]
   (node[:plugins] || []).each do |plugin|
     fragment = File.join(root, "plugins", plugin, "dotfiles", params[:name])
     sources << fragment if File.exist?(fragment)

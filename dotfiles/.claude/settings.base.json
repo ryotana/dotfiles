@@ -158,6 +158,5 @@
   "skipAutoPermissionPrompt": true,
   "autoUpdate": true,
   "agentPushNotifEnabled": true,
-  "tui": "fullscreen",
   "inputNeededNotifEnabled": true
 }
