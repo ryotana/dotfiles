@@ -8,8 +8,12 @@ if [ $(uname) == 'Darwin' ]; then
   INACTIVE=$(($INACTIVE_BLOCKS*4096/1048576))
   TOTAL=$((($FREE+$INACTIVE)))
 
-  printf "%04d" $TOTAL
+  SWAP_FREE=$(sysctl -n vm.swapusage | awk '{ for (i = 1; i <= NF; i++) if ($i == "free") print int($(i + 2)) }')
+
+  printf "%04d(+%d)" $TOTAL $SWAP_FREE
 else
   TOTAL=$(grep 'MemAvailable' /proc/meminfo | awk '{ print int($2 / 1024) }')
-  printf "%04d" $TOTAL
+  SWAP_FREE=$(grep 'SwapFree' /proc/meminfo | awk '{ print int($2 / 1024) }')
+
+  printf "%04d(+%d)" $TOTAL $SWAP_FREE
 fi
