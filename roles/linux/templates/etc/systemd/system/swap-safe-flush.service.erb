@@ -1,0 +1,6 @@
+[Unit]
+Description=Flush non-zram swap if memory is sufficient
+
+[Service]
+Type=oneshot
+ExecStart=<%= @swap_safe %> flush --non-interactive

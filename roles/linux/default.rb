@@ -44,3 +44,26 @@ end
     mode "755"
   end
 end
+
+# swap-safe flush timer
+template "/etc/systemd/system/swap-safe-flush.service" do
+  source File.expand_path("../templates/etc/systemd/system/swap-safe-flush.service.erb", __FILE__)
+  variables(swap_safe: File.expand_path("../files/bin/swap-safe", __FILE__))
+  owner "root"
+  group "root"
+  mode "0644"
+  notifies :run, "execute[apply swap-safe-flush.timer]"
+end
+
+remote_file "/etc/systemd/system/swap-safe-flush.timer" do
+  source File.expand_path("../files/etc/systemd/system/swap-safe-flush.timer", __FILE__)
+  owner "root"
+  group "root"
+  mode "0644"
+  notifies :run, "execute[apply swap-safe-flush.timer]"
+end
+
+execute "apply swap-safe-flush.timer" do
+  command "systemctl daemon-reload && systemctl reenable swap-safe-flush.timer && systemctl restart swap-safe-flush.timer"
+  action :nothing
+end

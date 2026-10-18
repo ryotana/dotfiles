@@ -47,7 +47,7 @@ sudo ./run.sh -x
 - **lib/bootstrap.rb** — ヘルパーメソッド群と実行シーケンス
 - **bin/** — `mitamae` ラッパーと自動ダウンロードされた mitamae バイナリ（`bin/mitamae-*` は `.gitignore` 対象）
 - **nodes/** — 属性定義のみ。`node.reverse_merge!` で値を設定。**リソース作成は禁止**
-- **roles/** — リソースを作成するレシピ群。`default.rb` と任意の `files/` を持つ。`roles/common` が共通 dotfile のリンクと `dotfiles` クックブックの読み込みを行い、`roles/{darwin,linux}` がプラットフォーム固有の dotfile・`~/bin` スクリプト・（Linux のみ）cloud-init スクリプト（`/var/lib/cloud/scripts/per-boot/`）を配置する
+- **roles/** — リソースを作成するレシピ群。`default.rb` と任意の `files/` を持つ。`roles/common` が共通 dotfile のリンクと `dotfiles` クックブックの読み込みを行い、`roles/{darwin,linux}` がプラットフォーム固有の dotfile・`~/bin` スクリプト・（Linux のみ）cloud-init スクリプト（`/var/lib/cloud/scripts/per-boot/`）と日次の `swap-safe flush` の systemd timer を配置する
 - **cookbooks/** — 再利用可能な設定単位。`dotfiles` クックブックが `dotfile_link` / `dotfile_template` / `dotfile_merged_json` ヘルパーを提供し、`roles/common` から `include_cookbook "dotfiles"` で読み込まれる。その他はホスト名ノードの `node[:cookbooks]` で有効化する（後述）
 - **dotfiles/** — `$HOME` にシンボリックリンク（または template / merged_json で生成）される実際の設定ファイル群
 - **plugins/** — 環境固有の設定（後述）
