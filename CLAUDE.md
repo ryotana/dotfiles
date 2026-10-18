@@ -64,7 +64,7 @@ sudo ./run.sh -x
 | `tmux` | tpm の導入、`~/.tmux.conf` をテンプレートから生成、ステータス表示スクリプトを `~/bin` にリンク |
 | `docker` | AL2023 は dnf で docker engine・docker-compose・buildx を導入し月次 `docker-prune` の systemd timer を設定、macOS は `homebrew` クックブックを内部で読み込み Docker Desktop（brew cask）を導入 |
 | `public-nginx` | `docker` クックブックを内部で読み込み、`/var/www/public` を docker compose の nginx で配信。symlink は AL2023 が `~/public`、macOS が `~/public-www`（既定の `~/Public` と衝突するため）。AL2023 は systemd --user サービス、macOS は LaunchAgent として常駐 |
-| `zram` | AL2023 のみ。zram-generator で `/dev/zram0`（RAM の半分・zstd・優先度 100）をスワップとして作成し、`vm.swappiness` / `vm.page-cluster` を zram 向けに調整 |
+| `zram` | AL2023 のみ。zram-generator で `/dev/zram0`（RAM 相当・zstd・優先度 100）をスワップとして作成し、`vm.swappiness` / `vm.page-cluster` を zram 向けに調整 |
 
 ### dotfile の追加手順
 
