@@ -155,8 +155,8 @@ do_swapoff() {
         sleep 1
     done
 
-    wait "$swapoff_pid"
-    local exit_code=$?
+    local exit_code=0
+    wait "$swapoff_pid" || exit_code=$?
     echo ""
 
     if [[ $exit_code -eq 0 ]]; then
