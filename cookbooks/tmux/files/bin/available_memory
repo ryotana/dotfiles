@@ -13,7 +13,12 @@ if [ $(uname) == 'Darwin' ]; then
   printf "%04d(+%d)" $TOTAL $SWAP_FREE
 else
   TOTAL=$(grep 'MemAvailable' /proc/meminfo | awk '{ print int($2 / 1024) }')
-  SWAP_FREE=$(grep 'SwapFree' /proc/meminfo | awk '{ print int($2 / 1024) }')
+  SWAP_FREE=$(awk 'NR > 1 && $1 !~ "^/dev/zram" { s += $3 - $4 } END { print int(s / 1024) }' /proc/swaps)
 
-  printf "%04d(+%d)" $TOTAL $SWAP_FREE
+  if grep -q '^/dev/zram' /proc/swaps; then
+    ZRAM_RATIO=$(cat /sys/block/zram*/mm_stat | awk '{ o += $1; m += $3 } END { if (m > 0) printf "%.1f", o / m; else print "-" }')
+    printf "%04d(+%d, x%s)" $TOTAL $SWAP_FREE $ZRAM_RATIO
+  else
+    printf "%04d(+%d)" $TOTAL $SWAP_FREE
+  fi
 fi
