@@ -7,6 +7,7 @@
   #{node[:userhome]}/.claude
   #{node[:userhome]}/.config/gitleaks
   #{node[:userhome]}/.config/playwright-mcp
+  #{node[:userhome]}/.config/playwright-mcp/image
   #{node[:userhome]}/.aws
 ].each do |dir|
   directory dir do
@@ -30,6 +31,7 @@ include_cookbook "dotfiles"
   .config/fish/functions
   .config/fish/conf.d/claude.fish
   .config/gitleaks/.gitleaks.toml
+  .config/playwright-mcp/image/Dockerfile
   .claude/CLAUDE.md
   .claude/no-mcp.json
   .claude/rules

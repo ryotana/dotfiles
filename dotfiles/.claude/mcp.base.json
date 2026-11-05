@@ -21,10 +21,9 @@
         "-i",
         "--rm",
         "--init",
-        "--pull=always",
         "-v",
         "${HOME}/.config/playwright-mcp:/state:ro",
-        "mcr.microsoft.com/playwright/mcp",
+        "local/playwright-mcp:0.0.83-node24.22.1",
         "--isolated",
         "--storage-state",
         "/state/storage-state.json"
