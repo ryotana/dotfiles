@@ -1,3 +1,10 @@
 #!/bin/bash
 
-ps -axo command= | awk '$1 == "claude" && $2 !~ /^bg-/ && $2 != "daemon" { c++ } END { printf "%d\n", c+0 }'
+ps -axo command= | awk -v jobs="$HOME/.claude/jobs" '
+  $1 == "claude" && $2 !~ /^bg-/ && $2 != "daemon" { c++ }
+  $1 == "claude" && $2 == "bg-pty-host" && $4 ~ /\/pty\/[^\/]+\.sock$/ {
+    id = $4; sub(/.*\//, "", id); sub(/\.sock$/, "", id)
+    if ((getline line < (jobs "/" id "/state.json")) > 0) c++
+    close(jobs "/" id "/state.json")
+  }
+  END { printf "%d\n", c+0 }'
