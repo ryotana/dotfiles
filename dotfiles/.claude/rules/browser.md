@@ -11,4 +11,6 @@
 
 ### 注意
 - Playwright MCP は Docker コンテナ（`--rm --isolated`）で動作するため、ホストのファイルシステムにはアクセスできない
+    - 例外として `~/.config/playwright-mcp` のみ読み取り専用でマウントされ、`storage-state.json` が起動時に読み込まれる
     - ローカルファイル（`file://`）のレンダリングや、ホストへの永続的なファイル保存はできない
+    - ブラウザ内のログイン・cookie 更新は保存されない。セッションはホスト側で `storage-state.json` を更新し、Claude Code を再起動して反映する
