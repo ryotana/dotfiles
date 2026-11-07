@@ -1,10 +1,23 @@
 #!/bin/bash
 
-ps -axo command= | awk -v jobs="$HOME/.claude/jobs" '
-  $1 == "claude" && $2 !~ /^bg-/ && $2 != "daemon" { c++ }
-  $1 == "claude" && $2 == "bg-pty-host" && $4 ~ /\/pty\/[^\/]+\.sock$/ {
-    id = $4; sub(/.*\//, "", id); sub(/\.sock$/, "", id)
-    if ((getline line < (jobs "/" id "/state.json")) > 0) c++
-    close(jobs "/" id "/state.json")
-  }
-  END { printf "%d\n", c+0 }'
+proc_cwd() {
+  readlink "/proc/$1/cwd" 2>/dev/null || lsof -a -p "$1" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p'
+}
+
+ps -axo pid=,command= | while read -r pid cmd sub _ sock _; do
+  [ "$cmd" = "claude" ] || continue
+  if [ "$sub" = "bg-spare" ]; then
+    spare_dir=$(dirname "$sock")
+    [ "$(proc_cwd "$pid")" != "$spare_dir" ] && echo "$pid"
+  fi
+done | wc -l | {
+  read -r claimed
+  ps -axo command= | awk -v jobs="$HOME/.claude/jobs" -v claimed="$claimed" '
+    $1 == "claude" && $2 !~ /^bg-/ && $2 != "daemon" && $2 != "agents" { c++ }
+    $1 == "claude" && $2 == "bg-pty-host" && $4 ~ /\/pty\/[^\/]+\.sock$/ {
+      id = $4; sub(/.*\//, "", id); sub(/\.sock$/, "", id)
+      if ((getline line < (jobs "/" id "/state.json")) > 0) c++
+      close(jobs "/" id "/state.json")
+    }
+    END { printf "%d\n", c + claimed }'
+}
