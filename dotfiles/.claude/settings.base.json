@@ -84,6 +84,7 @@
       "mcp__serena"
     ],
     "deny": [
+      "SendFeedback",
       "Bash(terraform destroy)",
       "Bash(gh pr comment:*)",
       "Bash(dnf:*)",
