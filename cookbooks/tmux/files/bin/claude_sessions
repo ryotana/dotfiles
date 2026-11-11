@@ -12,12 +12,8 @@ ps -axo pid=,command= | while read -r pid cmd sub _ sock _; do
   fi
 done | wc -l | {
   read -r claimed
-  ps -axo command= | awk -v jobs="$HOME/.claude/jobs" -v claimed="$claimed" '
+  ps -axo command= | awk -v claimed="$claimed" '
     $1 == "claude" && $2 !~ /^bg-/ && $2 != "daemon" && $2 != "agents" { c++ }
-    $1 == "claude" && $2 == "bg-pty-host" && $4 ~ /\/pty\/[^\/]+\.sock$/ {
-      id = $4; sub(/.*\//, "", id); sub(/\.sock$/, "", id)
-      if ((getline line < (jobs "/" id "/state.json")) > 0) c++
-      close(jobs "/" id "/state.json")
-    }
+    $1 == "claude" && $2 == "bg-pty-host" && $0 !~ / --bg-spare / { c++ }
     END { printf "%d\n", c + claimed }'
 }
